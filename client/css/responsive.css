@@ -1,0 +1,180 @@
+/* ============================================================
+   JANAMAT YUG - RESPONSIVE STYLESHEET
+   Breakpoints: Desktop (>1200px), Tablet (768-1199px), Mobile (<768px)
+============================================================= */
+
+/* ---------- LARGE DESKTOP / DEFAULT already handled in style.css ---------- */
+
+/* ---------- TABLET (max-width: 991.98px) ---------- */
+@media (max-width: 991.98px) {
+  .brand-name {
+    font-size: 1.6rem;
+  }
+
+  .main-navbar .navbar-nav {
+    text-align: left;
+  }
+
+  .main-navbar .nav-link {
+    padding: 10px 12px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .theme-toggle-btn {
+    margin-top: 10px;
+  }
+
+  .hero-carousel .carousel-item img {
+    height: 360px;
+  }
+
+  .carousel-headline {
+    font-size: 1.2rem;
+  }
+
+  .section-heading h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* ---------- MOBILE (max-width: 767.98px) ---------- */
+@media (max-width: 767.98px) {
+  .top-header {
+    display: none !important;
+  }
+
+  .logo-area {
+    padding: 12px 0;
+  }
+
+  .brand-name {
+    font-size: 1.4rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.65rem;
+  }
+
+  .search-form {
+    margin: 10px 0;
+  }
+
+  .btn-live {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+
+  .hero-carousel .carousel-item img {
+    height: 260px;
+  }
+
+  .carousel-caption-custom {
+    padding: 20px 16px 16px;
+  }
+
+  .carousel-headline {
+    font-size: 1rem;
+  }
+
+  .carousel-desc {
+    display: none;
+  }
+
+  .side-news-card img {
+    width: 90px;
+    height: 75px;
+  }
+
+  .side-news-title {
+    font-size: 0.82rem;
+  }
+
+  .breaking-label {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+  }
+
+  .ticker-item {
+    font-size: 0.78rem;
+  }
+
+  .news-card-img {
+    height: 200px;
+  }
+
+  .newsletter-heading {
+    font-size: 1.4rem;
+  }
+
+  .newsletter-form .input-group {
+    flex-direction: column;
+  }
+
+  .newsletter-form .form-control,
+  .newsletter-form .btn-subscribe {
+    border-radius: 30px;
+    width: 100%;
+  }
+
+  .newsletter-form .btn-subscribe {
+    margin-top: 10px;
+  }
+
+  .footer-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .site-footer .col-lg-4,
+  .site-footer .col-lg-2,
+  .site-footer .col-lg-3 {
+    text-align: center;
+  }
+
+  .footer-contact li {
+    justify-content: center;
+  }
+
+  .back-to-top {
+    width: 40px;
+    height: 40px;
+    bottom: 16px;
+    right: 16px;
+    font-size: 1rem;
+  }
+}
+
+/* ---------- SMALL MOBILE (max-width: 480px) ---------- */
+@media (max-width: 480px) {
+  .brand-name {
+    font-size: 1.2rem;
+  }
+
+  .weather-widget {
+    display: none !important;
+  }
+
+  .gallery-item {
+    aspect-ratio: 1/1;
+  }
+
+  .video-thumb img {
+    height: 170px;
+  }
+}
+
+/* ---------- REDUCED MOTION ACCESSIBILITY ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .ticker-move {
+    animation: none;
+  }
+  .live-dot {
+    animation: none;
+  }
+  * {
+    transition: none !important;
+  }
+}
