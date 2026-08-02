@@ -18,7 +18,7 @@ const {
 
 const protect = require("../middleware/authMiddleware");
 
-const isAdmin = require("../middleware/AdminMiddleware");
+const isAdmin = require("../middleware/adminMiddleware");
 
 router.post("/",sendMessage);
 
