@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings · The Desk Admin</title>
+<link rel="icon" href="assets/placeholder-thumb.svg" type="image/svg+xml">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link href="css/admin.css" rel="stylesheet">
+<link href="css/responsive.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+
+    <main class="app-content" data-auth-guard>
+      <div class="page-head">
+        <div>
+          <div class="breadcrumb-eyebrow">System</div>
+          <h1>Website Settings</h1>
+          <div class="lede">Control how the public site presents itself.</div>
+        </div>
+      </div>
+
+      <form id="settingsForm" novalidate>
+        <div class="row g-3">
+          <div class="col-lg-7">
+            <div class="desk-card mb-3">
+              <div class="desk-card-head"><h2><i class="bi bi-newspaper me-2"></i>Site Identity</h2></div>
+              <div class="desk-card-body">
+                <div class="mb-3">
+                  <label class="form-label" for="setSiteName">Site Name</label>
+                  <input type="text" class="form-control" id="setSiteName">
+                </div>
+                <div class="mb-0">
+                  <label class="form-label" for="setTagline">Tagline</label>
+                  <input type="text" class="form-control" id="setTagline">
+                </div>
+              </div>
+            </div>
+
+            <div class="desk-card mb-3">
+              <div class="desk-card-head"><h2><i class="bi bi-envelope me-2"></i>Contact Information</h2></div>
+              <div class="desk-card-body">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label" for="setContactEmail">Contact Email</label>
+                    <input type="email" class="form-control" id="setContactEmail">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="setContactPhone">Contact Phone</label>
+                    <input type="tel" class="form-control" id="setContactPhone">
+                  </div>
+                </div>
+                <div class="mb-0">
+                  <label class="form-label" for="setAddress">Office Address</label>
+                  <textarea class="form-control" id="setAddress" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="desk-card">
+              <div class="desk-card-head"><h2><i class="bi bi-share me-2"></i>Social Links</h2></div>
+              <div class="desk-card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label" for="setFacebook"><i class="bi bi-facebook me-1"></i>Facebook</label>
+                    <input type="url" class="form-control" id="setFacebook" placeholder="https://facebook.com/…">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="setTwitter"><i class="bi bi-twitter-x me-1"></i>X / Twitter</label>
+                    <input type="url" class="form-control" id="setTwitter" placeholder="https://x.com/…">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="setInstagram"><i class="bi bi-instagram me-1"></i>Instagram</label>
+                    <input type="url" class="form-control" id="setInstagram" placeholder="https://instagram.com/…">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="setYoutube"><i class="bi bi-youtube me-1"></i>YouTube</label>
+                    <input type="url" class="form-control" id="setYoutube" placeholder="https://youtube.com/…">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="desk-card mb-3">
+              <div class="desk-card-head"><h2><i class="bi bi-search me-2"></i>SEO Defaults</h2></div>
+              <div class="desk-card-body">
+                <div class="mb-3">
+                  <label class="form-label" for="setMetaDescription">Meta Description</label>
+                  <textarea class="form-control" id="setMetaDescription" rows="3" maxlength="160"></textarea>
+                </div>
+                <div class="mb-0">
+                  <label class="form-label" for="setMetaKeywords">Meta Keywords</label>
+                  <input type="text" class="form-control" id="setMetaKeywords" placeholder="comma, separated, keywords">
+                </div>
+              </div>
+            </div>
+
+            <div class="desk-card">
+              <div class="desk-card-head"><h2><i class="bi bi-toggles me-2"></i>Site Behavior</h2></div>
+              <div class="desk-card-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-title">Reader Comments</div>
+                    <div class="setting-desc">Allow readers to comment on articles.</div>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="setCommentsEnabled">
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-title">Advertisements</div>
+                    <div class="setting-desc">Show ad placements across the site.</div>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="setAdsEnabled">
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-title">Maintenance Mode</div>
+                    <div class="setting-desc">Show a maintenance page to visitors.</div>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="setMaintenanceMode">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3 mb-4">
+          <button type="submit" class="btn btn-desk-gold px-4" id="settingsSubmitBtn">
+            <i class="bi bi-check2-circle me-1"></i> Save Settings
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/common.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/settings.js"></script>
+</body>
+</html>

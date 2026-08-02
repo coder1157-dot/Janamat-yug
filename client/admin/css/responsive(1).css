@@ -1,0 +1,91 @@
+ /* ==========================================================================
+   Responsive overrides — mobile-first adjustments layered on admin.css
+   ========================================================================== */
+
+/* Tablet and below: sidebar becomes an off-canvas drawer */
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-pop);
+  }
+  .app-shell.is-sidebar-open .app-sidebar { transform: translateX(0); }
+  .app-shell.is-collapsed .app-sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); }
+  .app-shell.is-collapsed .brand-text,
+  .app-shell.is-collapsed .sidebar-nav .nav-link span,
+  .app-shell.is-collapsed .sidebar-section-label span { display: block; }
+
+  .app-main { margin-left: 0 !important; }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,33,61,.45);
+    z-index: 1025;
+  }
+  .app-shell.is-sidebar-open .sidebar-backdrop { display: block; }
+
+  .topbar-search { max-width: none; }
+}
+
+@media (max-width: 767.98px) {
+  .app-content { padding: 1rem; }
+  .page-head { flex-direction: column; align-items: flex-start; }
+  .page-head .page-head-actions { width: 100%; }
+  .page-head .page-head-actions .btn { width: 100%; }
+
+  .topbar-search { display: none; }
+  .app-topbar { gap: .5rem; padding: 0 .85rem; }
+
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar .form-select, .filter-bar .form-control { max-width: none; }
+
+  .desk-card-head { flex-direction: column; align-items: flex-start !important; }
+
+  .stat-card { flex-wrap: wrap; }
+
+  .desk-pagination { flex-direction: column; align-items: stretch; text-align: center; }
+
+  .table-responsive-cards thead { display: none; }
+  .table-responsive-cards tbody, .table-responsive-cards tr, .table-responsive-cards td {
+    display: block;
+    width: 100%;
+  }
+  .table-responsive-cards tr {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    margin-bottom: .75rem;
+    padding: .5rem .25rem;
+  }
+  .table-responsive-cards td {
+    padding: .4rem .75rem;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    text-align: right;
+  }
+  .table-responsive-cards td::before {
+    content: attr(data-label);
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: left;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .auth-form-side { padding: 1.25rem; }
+  .sidebar-brand { padding: 1rem; }
+  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+}
+
+/* Print (Reports-style pages could use this later) */
+@media print {
+  .app-sidebar, .app-topbar, .page-head-actions, .desk-pagination, .filter-bar { display: none !important; }
+  .app-main { margin-left: 0 !important; }
+  body { background: #fff; }
+}

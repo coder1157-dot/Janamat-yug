@@ -1,184 +1,289 @@
-/* ==========================================================================
-   JANAMAT YUG — AUTH (js/auth.js)
-   Powers login.html and register.html. Uses JY_STORE (localStorage) as a
-   stand-in for a real /api/auth/login and /api/auth/register endpoint.
-   ========================================================================== */
+/**
+ * auth.js
+ * ------------------------------------------------------------------
+ * SINGLE RESPONSIBILITY: authentication — login, register, JWT session,
+ * and the shared auth-state widget in the top bar (used on every page).
+ * ------------------------------------------------------------------
+ */
 
-(function () {
-  "use strict";
+ import {
+  loginRequest,
+  registerRequest,
+  getNewsletterSubscribeRequest
+} from "./newsApi.js";
 
-  document.addEventListener("DOMContentLoaded", function () {
-    initLoginForm();
-    initRegisterForm();
-    initPasswordToggles();
-    initForgotPassword();
+const TOKEN_KEY = 'jyug_token';
+const USER_KEY = 'jyug_user';
+
+/* ------------------------------------------------------------------ */
+/* Session helpers (exported for use by profile.js / interaction.js)   */
+/* ------------------------------------------------------------------ */
+
+export function isLoggedIn() {
+  return !!localStorage.getItem(TOKEN_KEY);
+}
+
+export function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY));
+  } catch (_) {
+    return null;
+  }
+}
+
+export function saveSession(token, user) {
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user || {}));
+}
+
+export function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  window.location.href = 'index.html';
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared nav auth-state widget (#authArea on every page's top bar)    */
+/* ------------------------------------------------------------------ */
+
+export function renderAuthState() {
+  const area = document.getElementById('authArea');
+  if (!area) return;
+
+  if (isLoggedIn()) {
+    const user = getCurrentUser() || {};
+    area.innerHTML = `
+      <a href="profile.html" class="me-2"><i class="fa-solid fa-user"></i> ${user.fullName || 'प्रोफ़ाइल'}</a>
+      <span>|</span>
+      <a href="bookmark.html" class="me-2"><i class="fa-solid fa-bookmark"></i> बुकमार्क</a>
+      <span>|</span>
+      <a href="#" id="logoutBtn">लॉगआउट</a>
+    `;
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+  } else {
+    area.innerHTML = `
+      <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> लॉगिन</a>
+      <span>|</span>
+      <a href="register.html">रजिस्टर करें</a>
+    `;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Login page                                                          */
+/* ------------------------------------------------------------------ */
+
+function initLoginForm() {
+  const form = document.getElementById('loginForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('authError');
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    errorBox.classList.add('d-none');
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'लॉगिन हो रहा है...';
+
+    try {
+      const data = await loginRequest({ email, password });
+      saveSession(data.token, data.user);
+      window.location.href = 'profile.html';
+    } catch (err) {
+      errorBox.textContent = err.message || 'लॉगिन विफल रहा';
+      errorBox.classList.remove('d-none');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'लॉगिन करें';
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Register page                                                       */
+/* ------------------------------------------------------------------ */
+
+function initRegisterForm() {
+  const form = document.getElementById('registerForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('authError');
+    const submitBtn = document.getElementById('registerSubmitBtn');
+    errorBox.classList.add('d-none');
+
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+    if (password !== confirmPassword) {
+      errorBox.textContent = 'पासवर्ड मेल नहीं खाते';
+      errorBox.classList.remove('d-none');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'रजिस्टर हो रहा है...';
+
+    try {
+      const data = await registerRequest({ fullName: name, email, password });
+      if (data.token) {
+        saveSession(data.token, data.user);
+        window.location.href = 'profile.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+    } catch (err) {
+      errorBox.textContent = err.message || 'रजिस्ट्रेशन विफल रहा';
+      errorBox.classList.remove('d-none');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'रजिस्टर करें';
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Route guard for pages that require login (profile / bookmark)       */
+/* ------------------------------------------------------------------ */
+
+export function requireAuth() {
+  if (!isLoggedIn()) {
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
+}
+
+/* ------------------------------------------------------------------ */
+/* Site-wide chrome shared by every page (topbar date, footer year,    */
+/* nav search redirect, back-to-top) — lives here since auth.js is the */
+/* one module every page already loads, avoiding duplicate inline JS.  */
+/* ------------------------------------------------------------------ */
+
+function initSiteChrome() {
+  const dateEl = document.getElementById('topbarDate');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('hi-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  const yearEl = document.getElementById('footerYear');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  const searchForm = document.getElementById('navSearchForm');
+  if (searchForm) {
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('navSearchInput');
+      const q = input.value.trim();
+      if (q) window.location.href = `category.html?search=${encodeURIComponent(q)}`;
+    });
+  }
+
+  const backTopBtn = document.getElementById('backTopBtn');
+  if (backTopBtn) {
+    window.addEventListener('scroll', () => {
+      backTopBtn.classList.toggle('show', window.scrollY > 400);
+    });
+    backTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+   const contactForm = document.getElementById("contactForm");
+
+if (contactForm) {
+
+  contactForm.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const name = document.getElementById("contactName").value;
+    const email = document.getElementById("contactEmail").value;
+    const message = document.getElementById("contactMessage").value;
+
+    const res = await fetch("http://localhost:5000/api/contact", {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        name,
+        email,
+        message
+      })
+
+    });
+
+
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      document.getElementById("contactSuccess").classList.remove("d-none");
+
+      contactForm.reset();
+
+    } else {
+
+      alert(data.message);
+
+    }
+
   });
 
-  function setInvalid(input, message) {
-    input.classList.add("is-invalid");
-    input.classList.remove("is-valid");
-    const fb = input.closest(".jy-field")?.querySelector(".invalid-feedback");
-    if (fb && message) fb.textContent = message;
-  }
-  function setValid(input) {
-    input.classList.remove("is-invalid");
-    input.classList.add("is-valid");
-  }
+}
 
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const MOBILE_RE = /^[6-9]\d{9}$/;
+// Newsletter Subscribe
 
-  // -------------------------- LOGIN --------------------------
-  function initLoginForm() {
-    const form = document.getElementById("loginForm");
-    if (!form) return;
+const newsletterForm = document.getElementById("newsletterForm");
 
-    const emailInput = document.getElementById("loginEmail");
-    const rememberedEmail = JY_STORE.getRememberedEmail();
-    if (rememberedEmail) {
-      emailInput.value = rememberedEmail;
-      document.getElementById("rememberMe").checked = true;
+if (newsletterForm) {
+
+  newsletterForm.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const email = document.getElementById("newsletterEmail").value.trim();
+
+    if (!email) {
+      alert("Email required");
+      return;
     }
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      let valid = true;
+    try {
 
-      const email = emailInput.value.trim();
-      const password = document.getElementById("loginPassword").value;
+      const data = await getNewsletterSubscribeRequest(email);
 
-      if (!EMAIL_RE.test(email)) { setInvalid(emailInput, "Enter a valid email address."); valid = false; }
-      else setValid(emailInput);
+      alert("✅ Newsletter Subscribe Successfully");
 
-      const pwInput = document.getElementById("loginPassword");
-      if (password.length < 6) { setInvalid(pwInput, "Password must be at least 6 characters."); valid = false; }
-      else setValid(pwInput);
+      newsletterForm.reset();
 
-      if (!valid) return;
+    } catch (err) {
 
-      const remember = document.getElementById("rememberMe").checked;
-      const existing = JY_STORE.findUser(email);
-      const user = existing || { name: email.split("@")[0], email, mobile: "" };
-      if (!existing) JY_STORE.saveUser({ name: user.name, email, mobile: "", password });
+      alert(err.message);
 
-      JY_STORE.setSession(user, remember);
-      window.jyToast("Login successful. Welcome back, " + user.name.split(" ")[0] + "!");
-      const btn = form.querySelector("button[type=submit]");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in…';
-      setTimeout(() => { window.location.href = "news.html"; }, 900);
-    });
-  }
-
-  // -------------------------- REGISTER --------------------------
-  function initRegisterForm() {
-    const form = document.getElementById("registerForm");
-    if (!form) return;
-
-    const nameInput = document.getElementById("regName");
-    const emailInput = document.getElementById("regEmail");
-    const mobileInput = document.getElementById("regMobile");
-    const pwInput = document.getElementById("regPassword");
-    const cpwInput = document.getElementById("regConfirmPassword");
-    const strengthBar = document.getElementById("pwStrengthBar");
-
-    pwInput.addEventListener("input", function () {
-      updateStrength(pwInput.value, strengthBar);
-    });
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      let valid = true;
-
-      if (nameInput.value.trim().length < 3) { setInvalid(nameInput, "Name must be at least 3 characters."); valid = false; }
-      else setValid(nameInput);
-
-      const email = emailInput.value.trim();
-      if (!EMAIL_RE.test(email)) { setInvalid(emailInput, "Enter a valid email address."); valid = false; }
-      else if (JY_STORE.findUser(email)) { setInvalid(emailInput, "An account with this email already exists."); valid = false; }
-      else setValid(emailInput);
-
-      if (!MOBILE_RE.test(mobileInput.value.trim())) { setInvalid(mobileInput, "Enter a valid 10-digit Indian mobile number."); valid = false; }
-      else setValid(mobileInput);
-
-      if (pwInput.value.length < 6) { setInvalid(pwInput, "Password must be at least 6 characters."); valid = false; }
-      else setValid(pwInput);
-
-      if (cpwInput.value !== pwInput.value || cpwInput.value === "") { setInvalid(cpwInput, "Passwords do not match."); valid = false; }
-      else setValid(cpwInput);
-
-      const terms = document.getElementById("agreeTerms");
-      if (terms && !terms.checked) { terms.classList.add("is-invalid"); valid = false; }
-      else if (terms) terms.classList.remove("is-invalid");
-
-      if (!valid) return;
-
-      const user = { name: nameInput.value.trim(), email, mobile: mobileInput.value.trim(), password: pwInput.value };
-      JY_STORE.saveUser(user);
-      JY_STORE.setSession(user, false);
-      window.jyToast("Account created! Redirecting to your profile…");
-      const btn = form.querySelector("button[type=submit]");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account…';
-      setTimeout(() => { window.location.href = "profile.html"; }, 900);
-    });
-  }
-
-  function updateStrength(pw, bar) {
-    if (!bar) return;
-    let score = 0;
-    if (pw.length >= 6) score++;
-    if (pw.length >= 10) score++;
-    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    const pct = Math.min(100, score * 20);
-    const colors = ["#B23A3A", "#B23A3A", "#E2900F", "#E2900F", "#2F7D4F", "#2F7D4F"];
-    bar.style.width = pct + "%";
-    bar.style.background = colors[score];
-  }
-
-  function initPasswordToggles() {
-    document.querySelectorAll("[data-jy-toggle-password]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const targetId = btn.getAttribute("data-jy-toggle-password");
-        const input = document.getElementById(targetId);
-        if (!input) return;
-        const isPw = input.type === "password";
-        input.type = isPw ? "text" : "password";
-        btn.innerHTML = isPw ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
-      });
-    });
-  }
-
-  function initForgotPassword() {
-    const link = document.getElementById("forgotPasswordLink");
-    const modalEl = document.getElementById("forgotPasswordModal");
-    if (!link || !modalEl || !window.bootstrap) return;
-    const modal = new bootstrap.Modal(modalEl);
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      modal.show();
-    });
-    const form = document.getElementById("forgotPasswordForm");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const emailInput = document.getElementById("forgotEmail");
-      if (!EMAIL_RE.test(emailInput.value.trim())) { setInvalid(emailInput, "Enter a valid email address."); return; }
-      setValid(emailInput);
-      document.getElementById("forgotSuccessMsg").classList.remove("d-none");
-      form.querySelector("button[type=submit]").disabled = true;
-      setTimeout(() => modal.hide(), 1800);
-    });
-    modalEl.addEventListener("hidden.bs.modal", function () {
-      form.reset();
-      form.querySelector("button[type=submit]").disabled = false;
-      document.getElementById("forgotSuccessMsg").classList.add("d-none");
-      emailInputReset();
-    });
-    function emailInputReset() {
-      const emailInput = document.getElementById("forgotEmail");
-      emailInput.classList.remove("is-invalid", "is-valid");
     }
-  }
-})();
+
+  });
+
+}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAuthState();
+  initLoginForm();
+  initRegisterForm();
+  initSiteChrome();
+});

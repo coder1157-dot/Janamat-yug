@@ -1,161 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — Janamat Yug</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>लॉगिन | जनमत युग</title>
+<link rel="icon" href="assets/favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<link href="css/responsive.css" rel="stylesheet">
 </head>
 <body>
 
-<!-- Utility bar -->
-<div class="jy-utility-bar">
-  <div class="container d-flex justify-content-between">
-    <span id="utilityDate">Wednesday, 22 July 2026</span>
-    <span><a href="contact.html">Contact</a> &nbsp;|&nbsp; <a href="about.html">About</a></span>
+<div class="jy-topbar">
+  <div class="container-jy d-flex justify-content-between align-items-center">
+    <span class="jy-topbar-date" id="topbarDate">आज की तारीख</span>
+    <div id="authArea" class="jy-topbar-auth"></div>
   </div>
 </div>
 
-<!-- Masthead -->
-<header class="jy-masthead text-center">
-  <a href="news.html" class="jy-logo text-decoration-none">Janamat <span>Yug</span></a>
-  <small>जनमत युग &middot; the pulse of the nation</small>
+<header class="jy-masthead">
+  <div class="container-jy jy-masthead-inner">
+    <!-- Logo -->
+        <a href="index.html" class="jy-logo-box">
+            <img src="assets/img/logo.png"
+                 class="jy-logo-img"
+                 alt="Janamat Yug">
+        </a>
+    <span class="jy-masthead-rule"></span>
+    <div><a href="index.html" class="text-decoration-none"><div class="jy-logo"><span>ज</span>नमत युग</div></a>
+      <div class="jy-tagline">सच कहने का साहस</div>
+    </div>
+    <span class="jy-masthead-rule"></span>
+  </div>
 </header>
 
-<!-- Nav -->
-<nav class="navbar navbar-expand-lg jy-nav">
-  <div class="container">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item"><a class="nav-link" href="news.html">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=national">National</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=business">Business</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=sports">Sports</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=entertainment">Entertainment</a></li>
-        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link active" href="login.html">Login</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Ticker -->
-<div class="jy-ticker">
-  <span class="jy-ticker-label"><i class="bi bi-broadcast"></i> BREAKING</span>
-  <div class="jy-ticker-track" data-jy-ticker-track></div>
-</div>
-
-<!-- Login form -->
 <main class="jy-auth-wrap">
-  <div class="jy-auth-card jy-reveal in">
-    <h1 class="font-display">Welcome back</h1>
-    <p class="jy-auth-sub">Log in to save articles, comment and personalise your feed.</p>
+  <div class="jy-auth-card">
+    <h2>लॉगिन करें</h2>
+    <p class="jy-auth-sub">अपने खाते में साइन इन करें और अपनी पसंदीदा खबरें पढ़ें</p>
+
+    <div class="alert alert-danger d-none" id="authError" role="alert"></div>
 
     <form id="loginForm" novalidate>
-      <div class="mb-3 jy-field">
-        <label for="loginEmail" class="form-label jy-label">Email</label>
-        <input type="email" class="form-control jy-input" id="loginEmail" placeholder="you@example.com" required>
-        <div class="invalid-feedback">Enter a valid email address.</div>
+      <div class="mb-3">
+        <label for="loginEmail" class="form-label">ईमेल पता</label>
+        <input type="email" class="form-control" id="loginEmail" required>
       </div>
-
-      <div class="mb-2 jy-field">
-        <label for="loginPassword" class="form-label jy-label">Password</label>
-        <div class="input-group">
-          <input type="password" class="form-control jy-input" id="loginPassword" placeholder="••••••••" required minlength="6">
-          <button class="btn btn-jy-outline" type="button" data-jy-toggle-password="loginPassword"><i class="bi bi-eye"></i></button>
-        </div>
-        <div class="invalid-feedback d-block" style="display:none"></div>
+      <div class="mb-3">
+        <label for="loginPassword" class="form-label">पासवर्ड</label>
+        <input type="password" class="form-control" id="loginPassword" required minlength="6">
       </div>
-
-      <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="rememberMe">
-          <label class="form-check-label small" for="rememberMe">Remember me</label>
-        </div>
-        <a href="#" id="forgotPasswordLink" class="small">Forgot Password?</a>
-      </div>
-
-      <button type="submit" class="btn btn-jy-primary w-100">Login</button>
-
-      <p class="text-center mt-4 small mb-0">Don't have an account? <a href="register.html">Register here</a></p>
+      <button type="submit" class="btn btn-jy-primary w-100" id="loginSubmitBtn">लॉगिन करें</button>
     </form>
+
+    <p class="text-center mt-4 mb-0" style="font-family:var(--jy-font-ui); font-size:0.9rem;">
+      खाता नहीं है? <a href="register.html">रजिस्टर करें</a>
+    </p>
   </div>
 </main>
 
-<!-- Forgot Password Modal -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title font-display">Reset your password</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Enter your account email and we'll send a reset link.</p>
-        <form id="forgotPasswordForm" novalidate>
-          <label for="forgotEmail" class="form-label jy-label">Email</label>
-          <input type="email" class="form-control jy-input" id="forgotEmail" placeholder="you@example.com" required>
-          <div class="invalid-feedback">Enter a valid email address.</div>
-          <div id="forgotSuccessMsg" class="alert alert-success mt-3 py-2 small d-none">Reset link sent! Check your inbox.</div>
-          <button type="submit" class="btn btn-jy-primary w-100 mt-3">Send Reset Link</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Footer -->
 <footer class="jy-footer">
-  <div class="container">
-    <div class="row g-4">
-      <div class="col-md-4">
-        <h5>Janamat <span style="color:var(--jy-saffron); font-style:italic;">Yug</span></h5>
-        <p class="small mt-2">Independent, verified reporting from every corner of India — in the language of the people.</p>
-        <div class="d-flex gap-2 mt-3">
-          <a href="#" class="jy-social-ic"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-twitter-x"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-youtube"></i></a>
-        </div>
-      </div>
-      <div class="col-md-2">
-        <h5 class="fs-6">Explore</h5>
-        <ul class="list-unstyled small mt-2">
-          <li><a href="news.html">News</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div class="col-md-3">
-        <h5 class="fs-6">Account</h5>
-        <ul class="list-unstyled small mt-2">
-          <li><a href="login.html">Login</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="profile.html">My Profile</a></li>
-        </ul>
-      </div>
-      <div class="col-md-3">
-        <h5 class="fs-6">Reach Us</h5>
-        <p class="small mb-0"><i class="bi bi-envelope me-2"></i>desk@janamatyug.in</p>
-        <p class="small"><i class="bi bi-telephone me-2"></i>+91 11 4567 8900</p>
-      </div>
-    </div>
-    <hr>
-    <p class="small text-center mb-0">&copy; <span data-jy-year></span> Janamat Yug. All rights reserved.</p>
+  <div class="container-jy">
+    <div class="jy-footer-bottom">© <span id="footerYear"></span> जनमत युग। सर्वाधिकार सुरक्षित।</div>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/common.js"></script>
-<script src="js/auth.js"></script>
+<script type="module" src="js/auth.js"></script>
 </body>
 </html>

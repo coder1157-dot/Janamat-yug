@@ -1,122 +1,190 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Category — Janamat Yug</title>
+<title>श्रेणी | जनमत युग</title>
+<link rel="icon" href="assets/favicon.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
+<link href="css/responsive.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="jy-utility-bar">
-  <div class="container d-flex justify-content-between">
-    <span>Wednesday, 22 July 2026</span>
-    <span><a href="contact.html">Contact</a> &nbsp;|&nbsp; <a href="about.html">About</a></span>
+<div class="jy-topbar">
+  <div class="container-jy d-flex justify-content-between align-items-center">
+    <span class="jy-topbar-date" id="topbarDate">आज की तारीख</span>
+    <div id="authArea" class="jy-topbar-auth"></div>
   </div>
 </div>
 
-<header class="jy-masthead text-center">
-  <a href="news.html" class="jy-logo text-decoration-none">Janamat <span>Yug</span></a>
-  <small>जनमत युग &middot; the pulse of the nation</small>
+<header class="jy-masthead">
+  <div class="container-jy jy-masthead-inner">
+    <!-- Logo -->
+        <a href="index.html" class="jy-logo-box">
+            <img src="assets/img/logo.png"
+                 class="jy-logo-img"
+                 alt="Janamat Yug">
+        </a>
+    <span class="jy-masthead-rule"></span>
+    <div><a href="index.html" class="text-decoration-none"><div class="jy-logo"><span>ज</span>नमत युग</div></a>
+      <div class="jy-tagline">सच कहने का साहस</div>
+    </div>
+    <span class="jy-masthead-rule"></span>
+  </div>
 </header>
 
-<nav class="navbar navbar-expand-lg jy-nav">
+<nav class="navbar navbar-expand-lg jy-navbar">
   <div class="container">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="मेनू खोलें">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item"><a class="nav-link" href="news.html">Home</a></li>
-        <li class="nav-item"><a class="nav-link active" href="category.html?cat=national">National</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=business">Business</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=sports">Sports</a></li>
-        <li class="nav-item"><a class="nav-link" href="category.html?cat=entertainment">Entertainment</a></li>
-        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">होम</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=rajniti">राजनीति</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=desh">देश</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=videsh">विदेश</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=khel">खेल</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=manoranjan">मनोरंजन</a></li>
+        <li class="nav-item"><a class="nav-link" href="category.html?cat=vyapar">व्यापार</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">हमारे बारे में</a></li>
+        <li class="nav-item"><a class="nav-link" href="contact.html">संपर्क करें</a></li>
       </ul>
-      <ul class="navbar-nav align-items-lg-center gap-lg-2">
-        <li class="nav-item"><a class="jy-nav-icon-btn nav-link" href="bookmark.html" title="Bookmarks"><i class="bi bi-bookmark-heart fs-5"></i></a></li>
-        <li class="nav-item" data-jy-guest-only><a class="nav-link" href="login.html">Login</a></li>
-        <li class="nav-item" data-jy-user-only><a class="nav-link" href="profile.html"><i class="bi bi-person-circle"></i> <span data-jy-user-name></span></a></li>
-      </ul>
+      <form class="d-flex jy-search-form" id="navSearchForm" role="search">
+        <input class="form-control" type="search" id="navSearchInput" placeholder="समाचार खोजें..." aria-label="खोजें">
+        <button class="btn" type="submit" aria-label="खोजें"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </form>
     </div>
   </div>
 </nav>
 
 <div class="jy-ticker">
-  <span class="jy-ticker-label"><i class="bi bi-broadcast"></i> BREAKING</span>
-  <div class="jy-ticker-track" data-jy-ticker-track></div>
+  <div class="jy-ticker-label"><i class="fa-solid fa-bolt"></i> ब्रेकिंग न्यूज़</div>
+  <div class="jy-ticker-track"><ul class="jy-ticker-list" id="tickerList"><li>जनमत युग में आपका स्वागत है</li></ul></div>
 </div>
 
-<!-- Category banner -->
-<section class="jy-cat-banner">
-  <div class="container">
-    <span class="jy-label font-mono" id="catBannerEyebrow" style="color:var(--jy-saffron); font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;">Section</span>
-    <h1 id="catBannerTitle" class="mt-1">Category News</h1>
-    <p id="catBannerDesc">Loading section…</p>
+<main class="container-jy jy-section">
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="jy-section-title">
+        <div>
+          <span class="jy-eyebrow">श्रेणी</span>
+          <h2 id="categoryHeading">सभी समाचार</h2>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="jy-filter-bar">
+        <form id="categorySearchForm" class="d-flex flex-grow-1" role="search">
+          <input type="search" id="categorySearchInput" class="form-control me-2" placeholder="इस श्रेणी में खोजें...">
+          <button type="submit" class="btn btn-jy-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+        <select id="sortSelect" class="form-select" style="max-width:180px;">
+          <option value="newest">नवीनतम पहले</option>
+          <option value="oldest">पुराने पहले</option>
+          <option value="popular">सर्वाधिक लोकप्रिय</option>
+        </select>
+        <div class="form-check form-switch ms-auto">
+          <input class="form-check-input" type="checkbox" role="switch" id="viewModeToggle">
+          <label class="form-check-label" for="viewModeToggle" style="font-family:var(--jy-font-ui); font-size:0.82rem;">इनफिनिट स्क्रॉल</label>
+        </div>
+      </div>
+
+      <!-- Category chips -->
+      <div class="d-flex flex-wrap gap-2 mb-4" id="categoryChips"></div>
+
+      <!-- News grid -->
+      <div class="row g-4" id="categoryGrid"></div>
+
+      <ul class="pagination jy-pagination" id="newsPagination"></ul>
+      <div class="jy-scroll-loader d-none" id="scrollLoader"><i class="fa-solid fa-spinner fa-spin"></i> और समाचार लोड हो रहे हैं...</div>
+    </div>
+
+    <aside class="col-lg-3">
+      <div class="jy-widget">
+        <h5>श्रेणियाँ</h5>
+        <div id="categoryTagList"></div>
+      </div>
+      <div class="jy-widget">
+        <h5><i class="fa-solid fa-fire text-danger"></i> ट्रेंडिंग</h5>
+        <div id="trendingList"><p class="text-muted mb-0">लोड हो रहा है...</p></div>
+      </div>
+    </aside>
   </div>
-</section>
-
-<main class="container py-5">
-  <div class="d-flex flex-wrap gap-2 mb-4" id="catChips"></div>
-
-  <div class="jy-section-head">
-    <h2>Latest Stories</h2>
-    <span class="eyebrow"><span id="resultCount">0</span> articles</span>
-  </div>
-
-  <div class="row g-4" id="newsGrid"></div>
-
-  <nav class="mt-5 d-flex justify-content-center" aria-label="Category pagination">
-    <ul class="pagination" id="catPagination"></ul>
-  </nav>
 </main>
 
 <footer class="jy-footer">
-  <div class="container">
+  <div class="container-jy">
     <div class="row g-4">
-      <div class="col-md-4">
-        <h5>Janamat <span style="color:var(--jy-saffron); font-style:italic;">Yug</span></h5>
-        <p class="small mt-2">Independent, verified reporting from every corner of India — in the language of the people.</p>
-        <div class="d-flex gap-2 mt-3">
-          <a href="#" class="jy-social-ic"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-twitter-x"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="jy-social-ic"><i class="bi bi-youtube"></i></a>
+      <div class="col-lg-4">
+        <div class="jy-footer-logo"><span>ज</span>नमत युग</div>
+        <p class="mt-3">जनमत युग एक स्वतंत्र हिंदी समाचार पोर्टल है जो निष्पक्ष, तेज़ और भरोसेमंद पत्रकारिता के लिए प्रतिबद्ध है।</p>
+        <div class="jy-social">
+           <a href="#" aria-label="Facebook">
+    <i class="fa-brands fa-facebook-f"></i>
+</a>
+
+<a href="#" aria-label="Twitter">
+    <i class="fa-brands fa-x-twitter"></i>
+</a>
+
+<a href="#" aria-label="Instagram">
+    <i class="fa-brands fa-instagram"></i>
+</a>
+
+<a href="#" aria-label="YouTube">
+    <i class="fa-brands fa-youtube"></i>
+</a>
         </div>
       </div>
-      <div class="col-md-2">
-        <h5 class="fs-6">Explore</h5>
-        <ul class="list-unstyled small mt-2">
-          <li><a href="news.html">News</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
+      <div class="col-lg-2 col-6">
+        <h5>श्रेणियाँ</h5>
+        <ul class="list-unstyled d-flex flex-column gap-2">
+          <li><a href="category.html?cat=rajniti">राजनीति</a></li>
+          <li><a href="category.html?cat=khel">खेल</a></li>
+          <li><a href="category.html?cat=manoranjan">मनोरंजन</a></li>
+          <li><a href="category.html?cat=vyapar">व्यापार</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
-        <h5 class="fs-6">Account</h5>
-        <ul class="list-unstyled small mt-2">
-          <li><a href="login.html">Login</a></li>
-          <li><a href="register.html">Register</a></li>
-          <li><a href="profile.html">My Profile</a></li>
+      <div class="col-lg-2 col-6">
+        <h5>कंपनी</h5>
+        <ul class="list-unstyled d-flex flex-column gap-2">
+          <li><a href="about.html">हमारे बारे में</a></li>
+          <li><a href="contact.html">संपर्क करें</a></li>
+          <li><a href="login.html">लॉगिन</a></li>
+          <li><a href="register.html">रजिस्टर</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
-        <h5 class="fs-6">Reach Us</h5>
-        <p class="small mb-0"><i class="bi bi-envelope me-2"></i>desk@janamatyug.in</p>
-        <p class="small"><i class="bi bi-telephone me-2"></i>+91 11 4567 8900</p>
-      </div>
+      <div class="col-lg-4">
+        <h5>संपर्क</h5>
+         <p class="mb-3">
+    <i class="fa-solid fa-location-dot me-2" style="color:var(--jy-accent);"></i>
+    जनमत युग मीडिया कार्यालय,<br>
+    Plot No. 27, Shanti Vihar, Civil Lines,<br>
+    Agra, Uttar Pradesh - 282002
+</p>
+
+<p class="mb-3">
+    <i class="fa-solid fa-envelope me-2" style="color:var(--jy-accent);"></i>
+    contact@janamatyug.in
+</p>
+
+<p class="mb-3">
+    <i class="fa-solid fa-phone me-2" style="color:var(--jy-accent);"></i>
+    +91 98765 43210
+</p>
     </div>
-    <hr>
-    <p class="small text-center mb-0">&copy; <span data-jy-year></span> Janamat Yug. All rights reserved.</p>
+    <div class="jy-footer-bottom">© <span id="footerYear"></span> जनमत युग। सर्वाधिकार सुरक्षित।</div>
   </div>
 </footer>
 
+<button class="jy-back-top" id="backTopBtn" aria-label="ऊपर जाएं"><i class="fa-solid fa-arrow-up"></i></button>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/common.js"></script>
-<script src="js/category.js"></script>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/news.js"></script>
+<script type="module" src="js/category.js"></script>
 </body>
 </html>

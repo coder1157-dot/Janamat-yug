@@ -1,103 +1,162 @@
-/* ==========================================================================
-   JANAMAT YUG — PROFILE PAGE (js/profile.js)
-   ========================================================================== */
+/**
+ * profile.js
+ * ------------------------------------------------------------------
+ * SINGLE RESPONSIBILITY: profile page — display and update the
+ * logged-in user's account details.
+ * ------------------------------------------------------------------
+ */
 
-(function () {
-  "use strict";
+import { getProfileRequest, updateProfileRequest, changePasswordRequest } from './newsApi.js';
+import { requireAuth, getCurrentUser, logout } from './auth.js';
+import { showToast, getAllBookmarks } from './interaction.js';
 
-  document.addEventListener("DOMContentLoaded", function () {
-    if (!JY_STORE.getSession()) {
-      // Not logged in: still render with guest defaults, gently prompt.
-      window.jyToast("Log in to see your personalised profile");
+
+function initPasswordForm() {
+
+  const form = document.getElementById("changePasswordForm");
+
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const currentPassword =
+      document.getElementById("currentPassword").value.trim();
+
+    const newPassword =
+      document.getElementById("newPassword").value.trim();
+
+    if (!currentPassword || !newPassword) {
+
+      showToast("सभी फ़ील्ड भरें", "error");
+
+      return;
+
     }
-    renderProfile();
-    renderSavedArticlesPreview();
-    initEditProfile();
+
+    try {
+
+      await changePasswordRequest(
+
+        currentPassword,
+
+        newPassword
+
+      );
+
+      showToast(
+
+        "पासवर्ड सफलतापूर्वक बदल दिया गया",
+
+        "success"
+
+      );
+
+      form.reset();
+
+    }
+
+    catch(err){
+
+      showToast(
+
+        err.message,
+
+        "error"
+
+      );
+
+    }
+
   });
 
-  function renderProfile() {
-    const p = JY_STORE.getProfile();
-    document.getElementById("profileName").textContent = p.name;
-    document.getElementById("profileEmail").textContent = p.email;
-    document.getElementById("profileMobile").textContent = p.mobile || "Not provided";
-    const photo = document.getElementById("profilePhoto");
-    photo.src = p.photo || `https://ui-avatars.com/api/?background=8C2A34&color=fff&size=200&name=${encodeURIComponent(p.name)}`;
+}
+function initial(name = 'उ') {
+  return name.trim().charAt(0).toUpperCase() || 'उ';
+}
+ function paintProfile(user) {
+  const name = user.fullName || 'उपयोगकर्ता';
 
-    const bookmarks = JY_STORE.getBookmarks();
-    document.getElementById("statSaved").textContent = bookmarks.length;
-    document.getElementById("statComments").textContent = countMyComments();
-    document.getElementById("statJoined").textContent = "2026";
+  document.getElementById('profileAvatar').textContent = initial(name);
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = user.email || '';
+
+  document.getElementById('editName').value = user.fullName || '';
+  document.getElementById('editEmail').value = user.email || '';
+
+  document.getElementById('bookmarkCount').textContent =
+    getAllBookmarks().length;
+}
+
+async function loadProfile() {
+  const cached = getCurrentUser();
+  if (cached) paintProfile(cached);
+
+  try {
+    const data = await getProfileRequest();
+    const user = data.user || data;
+    paintProfile(user);
+  } catch (err) {
+    if (!cached) showToast('प्रोफ़ाइल लोड नहीं हो सकी', 'error');
   }
+}
+ function initEditForm() {
+  const form = document.getElementById('profileEditForm');
+  if (!form) return;
 
-  function countMyComments() {
-    try {
-      const raw = JSON.parse(localStorage.getItem("jy_comments_extra") || "{}");
-      return Object.values(raw).reduce((sum, arr) => sum + arr.length, 0);
-    } catch (e) { return 0; }
-  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  function renderSavedArticlesPreview() {
-    const wrap = document.getElementById("savedArticlesPreview");
-    if (!wrap) return;
-    const ids = JY_STORE.getBookmarks().slice(0, 3);
-    if (!ids.length) {
-      wrap.innerHTML = '<div class="jy-empty-state py-4"><i class="bi bi-bookmark"></i><p class="mb-2">No saved articles yet.</p><a href="news.html" class="btn btn-jy-outline btn-sm">Browse News</a></div>';
+    const btn = document.getElementById('profileSaveBtn');
+    const fullName = document.getElementById('editName').value.trim();
+     
+
+    if (!fullName) {
+      showToast('नाम दर्ज करें', 'error');
       return;
     }
-    JY_API.getAllNews().then((all) => {
-      const items = all.filter(n => ids.includes(n.id));
-      wrap.innerHTML = items.map(n => `
-        <a href="news.html?id=${n.id}" class="d-flex align-items-center gap-3 text-decoration-none text-reset py-2 border-bottom">
-          <img src="${n.image}" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:6px;">
-          <div>
-            <div class="fw-semibold">${escapeHTML(n.title)}</div>
-            <div class="jy-card-meta">${n.category}</div>
-          </div>
-        </a>`).join("");
-    });
-  }
 
-  function initEditProfile() {
-    const form = document.getElementById("editProfileForm");
-    if (!form) return;
-    const modalEl = document.getElementById("editProfileModal");
-    const modal = window.bootstrap ? new bootstrap.Modal(modalEl) : null;
+    btn.disabled = true;
 
-    modalEl.addEventListener("show.bs.modal", function () {
-      const p = JY_STORE.getProfile();
-      document.getElementById("editName").value = p.name;
-      document.getElementById("editEmail").value = p.email;
-      document.getElementById("editMobile").value = p.mobile || "";
-      document.getElementById("editPhoto").value = p.photo || "";
-    });
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const nameInput = document.getElementById("editName");
-      const emailInput = document.getElementById("editEmail");
-      let valid = true;
-      if (nameInput.value.trim().length < 3) { nameInput.classList.add("is-invalid"); valid = false; }
-      else nameInput.classList.remove("is-invalid");
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) { emailInput.classList.add("is-invalid"); valid = false; }
-      else emailInput.classList.remove("is-invalid");
-      if (!valid) return;
-
-      const updated = {
-        name: nameInput.value.trim(),
-        email: emailInput.value.trim(),
-        mobile: document.getElementById("editMobile").value.trim(),
-        photo: document.getElementById("editPhoto").value.trim()
+    try {
+      const payload = {
+        fullName
       };
-      JY_STORE.saveProfile(updated);
-      renderProfile();
-      window.jyToast("Profile updated successfully");
-      if (modal) modal.hide();
-    });
-  }
 
-  function escapeHTML(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-})();
+      const data = await updateProfileRequest(payload);
+      const user = data.user || data;
+
+      localStorage.setItem('jyug_user', JSON.stringify(user));
+
+      paintProfile(user);
+
+      showToast('प्रोफ़ाइल अपडेट हो गई', 'success');
+
+    } catch (err) {
+
+      console.error('Profile update error:', err);
+
+      showToast(
+        err.message || 'अपडेट विफल रहा',
+        'error'
+      );
+
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+function initLogoutButton() {
+  document.getElementById('profileLogoutBtn')?.addEventListener('click', () => logout());
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.getElementById('profileName')) return; /* not the profile page */
+  if (!requireAuth()) return;
+
+  loadProfile();
+  initEditForm();
+  initPasswordForm();
+  initLogoutButton();
+});

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comments · The Desk Admin</title>
+<link rel="icon" href="assets/placeholder-thumb.svg" type="image/svg+xml">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link href="css/admin.css" rel="stylesheet">
+<link href="css/responsive.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+
+    <main class="app-content" data-auth-guard>
+      <div class="page-head">
+        <div>
+          <div class="breadcrumb-eyebrow">Audience</div>
+          <h1>Comments</h1>
+          <div class="lede">Moderate reader discussion across all articles.</div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning d-none small" id="commentsApiBanner">
+        <i class="bi bi-info-circle me-1"></i>
+        This page expects a <code>/api/comments</code> endpoint, which wasn't part of the supplied backend API list. Add that route on the server to activate moderation here.
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" class="form-control" id="commentFilterSearch" placeholder="Search comments…">
+        <select class="form-select" id="commentFilterStatus">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-head">
+          <h2><i class="bi bi-chat-square-text me-2"></i>All Comments</h2>
+          <span class="result-count" id="resultCount">Loading…</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-desk table-responsive-cards mb-0">
+            <thead>
+              <tr>
+                <th>Comment</th>
+                <th>Author</th>
+                <th>Posted</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="commentsTableBody">
+              <tr><td colspan="5" class="text-center text-soft py-4">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="desk-pagination">
+          <span class="result-count">&nbsp;</span>
+          <nav id="commentsPagination"></nav>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/common.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/comments.js"></script>
+</body>
+</html>
