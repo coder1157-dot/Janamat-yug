@@ -24,11 +24,37 @@ const newsSchema = new mongoose.Schema(
       required: true,
     },
 
-    image: {
-      type: String,
-      default: "",
-    },
+     coverImage: {
+    type: String,
+    default: ""
+},
+  video: {
+    type: String,
+    default: ""
+},
 
+gallery: [{
+    type: String
+}],
+
+videoThumbnail: {
+    type: String,
+    default: ""
+},
+
+location: {
+    type: String,
+    default: ""
+},
+
+tags: [{
+    type: String
+}],
+
+publishedAt: {
+    type: Date,
+    default: Date.now
+},
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -43,6 +69,18 @@ const newsSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    likes: {
+    type: Number,
+    default: 0
+},
+
+likedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+}],
+
+
 
     isBreaking: {
       type: Boolean,
@@ -59,10 +97,47 @@ const newsSchema = new mongoose.Schema(
       enum: ["draft", "published"],
       default: "published",
     },
+  
+    metaTitle: {
+    type: String
+},
+
+metaDescription: {
+    type: String
+},
+
+keywords: [{
+    type: String
+}],
+
+canonicalUrl: {
+    type: String
+},
+
+ratings: [
+{
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
+
+    rating: {
+        type: Number,
+        min: 1,
+        max: 5
+    }
+}
+],
+
+averageRating: {
+    type: Number,
+    default: 0
+}
   },
   {
     timestamps: true,
   }
+  
 );
 
 module.exports = mongoose.model("News", newsSchema);

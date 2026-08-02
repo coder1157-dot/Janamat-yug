@@ -1,32 +1,100 @@
-const multer = require("multer");
+ const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-const storage = multer.memoryStorage();
+// Create upload folders automatically
+const folders = [
+    "uploads/news/images",
+    "uploads/news/gallery",
+    "uploads/news/videos",
+    "uploads/news/thumbnails"
+];
 
-const upload = multer({
-    storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
-    },
-    fileFilter: (req, file, cb) => {
+folders.forEach(folder => {
+    if (!fs.existsSync(folder)) {
+        fs.mkdirSync(folder, { recursive: true });
+    }
+});
 
-        const allowedTypes = [
-            "image/jpeg",
-            "image/jpg",
-            "image/png",
-            "image/webp"
-        ];
+// Storage
+const storage = multer.diskStorage({
 
-        if (allowedTypes.includes(file.mimetype)) {
+    destination: (req, file, cb) => {
 
-            cb(null, true);
+        switch (file.fieldname) {
 
-        } else {
+            case "coverImage":
+                cb(null, "uploads/news/images");
+                break;
 
-            cb(new Error("Only image files are allowed"));
+            case "gallery":
+                cb(null, "uploads/news/gallery");
+                break;
 
+            case "video":
+                cb(null, "uploads/news/videos");
+                break;
+
+            case "videoThumbnail":
+                cb(null, "uploads/news/thumbnails");
+                break;
+
+            default:
+                cb(null, "uploads/news/images");
         }
+    },
+
+    filename: (req, file, cb) => {
+
+        const fileName =
+            Date.now() +
+            "-" +
+            Math.round(Math.random() * 1000000) +
+            path.extname(file.originalname);
+
+        cb(null, fileName);
+    }
+
+});
+
+// File Filter
+const fileFilter = (req, file, cb) => {
+
+    const allowedTypes = [
+
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+
+        "video/mp4",
+        "video/webm",
+        "video/ogg",
+        "video/quicktime"
+
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+
+        cb(null, true);
+
+    } else {
+
+        cb(new Error("Only Images & Videos are allowed"), false);
 
     }
+
+};
+
+const upload = multer({
+
+    storage,
+    fileFilter,
+
+    limits: {
+        fileSize: 100 * 1024 * 1024
+    }
+
 });
 
 module.exports = upload;

@@ -9,6 +9,14 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const newsRoutes = require("./routes/newsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const bookmarkRoutes = require("./routes/bookmarkRoutes");
+const subscriberRoutes = require("./routes/subscriberRoutes");
+const seoRoutes = require("./routes/seoRoutes");
+const advertisementRoutes = require("./routes/advertisementRoutes");
+const contactRoutes = require("./routes/contactRoutes");
+const settingRoutes=require("./routes/settingRoutes");
+ 
+const path = require("path");
 const app = express();
 
 // Middlewares
@@ -23,6 +31,13 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/subscribers", subscriberRoutes);
+app.use("/api/seo", seoRoutes);
+app.use("/api/ads", advertisementRoutes);
+app.use("/api/contact",contactRoutes);
+app.use("/api/settings",settingRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // Test Route

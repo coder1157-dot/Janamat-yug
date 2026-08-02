@@ -1,24 +1,24 @@
-const isAdmin = (req, res, next) => {
+ const isAdmin = (req,res,next)=>{
 
-    if (!req.user) {
+    if(!req.user){
 
         return res.status(401).json({
 
-            success: false,
+            success:false,
 
-            message: "Unauthorized"
+            message:"Unauthorized"
 
         });
 
     }
 
-    if (req.user.role !== "admin") {
+    if(req.user.role!=="admin"){
 
         return res.status(403).json({
 
-            success: false,
+            success:false,
 
-            message: "Admin Access Only"
+            message:"Admin Access Only"
 
         });
 
@@ -28,4 +28,4 @@ const isAdmin = (req, res, next) => {
 
 };
 
-module.exports = isAdmin;
+module.exports=isAdmin;

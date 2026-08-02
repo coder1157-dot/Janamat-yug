@@ -1,33 +1,97 @@
-const News = require("../models/News");
+ const News = require("../models/News");
+const Category = require("../models/Category");
 const slugify = require("slugify");
+const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
 
 // Create News
 const createNews = async (req, res) => {
     try {
 
-        const {
-            title,
-            shortDescription,
-            content,
-            category,
-            image,
-            isBreaking,
-            isFeatured,
-            status
-        } = req.body;
+         const {
+    title,
+    shortDescription,
+    content,
+    category,
+    location,
+    tags,
+    isBreaking,
+    isFeatured,
+    status,
+    metaTitle,
+    metaDescription,
+    keywords,
+    canonicalUrl
+} = req.body;
+
+ const coverImage = req.files?.coverImage
+    ? `/uploads/news/images/${req.files.coverImage[0].filename}`
+    : "";
+     
+ const gallery = req.files?.gallery
+    ? req.files.gallery.map(file => `/uploads/news/gallery/${file.filename}`)
+    : [];
+
+ const videoThumbnail = req.files?.videoThumbnail
+    ? `/uploads/news/thumbnails/${req.files.videoThumbnail[0].filename}`
+    : "";
+
+ const video = req.files?.video
+    ? `/uploads/news/videos/${req.files.video[0].filename}`
+    : "";
+ 
+const slug =
+    slugify(title || "", {
+        lower: true,
+        strict: false,
+        trim: true
+    }) || `news-${Date.now()}`;
+
+    
+console.log(req.body);
+console.log(req.files);
+
+console.log("SLUG =>", slug);
+console.log("SHORT =>", shortDescription);
 
         const news = await News.create({
             title,
-            slug: slugify(title, { lower: true }),
-            shortDescription,
-            content,
-            category,
-            image,
-            author: req.user.id,
-            isBreaking,
-            isFeatured,
-            status
+slug,
+shortDescription,
+content,
+category,
+location,
+tags,
+coverImage,
+video,
+gallery,
+videoThumbnail,
+
+author: req.user.id,
+
+isBreaking,
+isFeatured,
+status,
+
+metaTitle: metaTitle || title,
+metaDescription: metaDescription || shortDescription,
+keywords: keywords || title.split(" "),
+canonicalUrl: canonicalUrl || `/news/${slug}`
         });
+
+         if (news.isBreaking === true && news.status === "published") {
+
+    await Notification.create({
+
+        title: "🚨 Breaking News",
+
+        message: news.title,
+
+        news: news._id
+
+    });
+
+}
 
         res.status(201).json({
             success: true,
@@ -35,14 +99,17 @@ const createNews = async (req, res) => {
             news
         });
 
-    } catch (error) {
+    }  catch (error) {
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    console.error("CREATE NEWS ERROR:");
+    console.error(error);
 
-    }
+    res.status(500).json({
+        success: false,
+        message: error.message
+    });
+
+}
 };
 
 const getAllNews = async (req, res) => {
@@ -76,7 +143,8 @@ const getSingleNews = async (req, res) => {
     try {
 
         const news = await News.findOne({
-            slug: req.params.slug
+            slug: req.params.slug,
+            status: "published"
         })
         .populate("category")
         .populate("author","fullName");
@@ -107,28 +175,52 @@ const getSingleNews = async (req, res) => {
     }
 
 };
+ const updateNews = async (req, res) => {
 
-const updateNews = async (req,res)=>{
-
-    try{
+    try {
 
         const news = await News.findByIdAndUpdate(
             req.params.id,
             req.body,
-            {new:true}
+            {
+                new: true,
+                runValidators: true
+            }
         );
 
+        if (!news) {
+            return res.status(404).json({
+                success: false,
+                message: "News Not Found"
+            });
+        }
+
+        // Auto Notification
+        if (news.isBreaking === true && news.status === "published") {
+
+            await Notification.create({
+
+                title: "🚨 Breaking News",
+
+                message: news.title,
+
+                news: news._id
+
+            });
+
+        }
+
         res.status(200).json({
-            success:true,
-            message:"News Updated",
+            success: true,
+            message: "News Updated Successfully",
             news
         });
 
-    }catch(error){
+    } catch (error) {
 
         res.status(500).json({
-            success:false,
-            message:error.message
+            success: false,
+            message: error.message
         });
 
     }
@@ -356,15 +448,82 @@ const getLatestNews = async (req, res) => {
 
     }
 
+}; 
+ 
+ const getNewsByCategory = async (req, res) => {
+  try {
+    const value = req.params.categoryId;
+
+    let category;
+
+    if (mongoose.Types.ObjectId.isValid(value)) {
+      category = await Category.findById(value);
+    } else {
+      category = await Category.findOne({ slug: value });
+    }
+
+    if (!category) {
+      return res.json({
+        message: "Category not found"
+      });
+    }
+
+    console.log("Category:", category);
+
+    const news = await News.find({
+      category: category._id
+    });
+
+    console.log("Found:", news.length);
+
+    if (news.length > 0) {
+      console.log("First News Category:", news[0].category);
+      console.log("Category _id:", category._id);
+      console.log(
+        "Equal:",
+        news[0].category.toString() === category._id.toString()
+      );
+    }
+
+    return res.status(200).json({
+    success: true,
+    news
+});
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
 };
 
-const getNewsByCategory = async (req, res) => {
+ const getRelatedNews = async (req, res) => {
 
     try {
 
-        const news = await News.find({
-            category: req.params.categoryId
+        const { id } = req.params;
+
+        const currentNews = await News.findById(id);
+
+        if (!currentNews) {
+            return res.status(404).json({
+                success: false,
+                message: "News Not Found"
+            });
+        }
+
+        const relatedNews = await News.find({
+
+            category: currentNews.category,
+
+            _id: { $ne: currentNews._id },
+
+            status: "published"
+
         })
+        .limit(6)
         .populate("category")
         .populate("author", "fullName");
 
@@ -372,9 +531,9 @@ const getNewsByCategory = async (req, res) => {
 
             success: true,
 
-            count: news.length,
+            count: relatedNews.length,
 
-            news
+            news: relatedNews
 
         });
 
@@ -392,6 +551,129 @@ const getNewsByCategory = async (req, res) => {
 
 };
 
+const likeNews = async (req, res) => {
+
+    try {
+
+        const news = await News.findById(req.params.id);
+
+        if (!news) {
+            return res.status(404).json({
+                success: false,
+                message: "News Not Found"
+            });
+        }
+
+        const userId = req.user.id;
+
+        const alreadyLiked = news.likedBy.includes(userId);
+
+        if (alreadyLiked) {
+
+            news.likedBy.pull(userId);
+            news.likes--;
+
+            await news.save();
+
+            return res.status(200).json({
+                success: true,
+                message: "News Unliked",
+                likes: news.likes
+            });
+
+        }
+
+        news.likedBy.push(userId);
+        news.likes++;
+
+        await news.save();
+
+        res.status(200).json({
+            success: true,
+            message: "News Liked",
+            likes: news.likes
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+};
+
+const rateNews = async (req, res) => {
+
+    try {
+
+        const { rating } = req.body;
+
+        const news = await News.findById(req.params.id);
+
+        if (!news) {
+
+            return res.status(404).json({
+                success: false,
+                message: "News Not Found"
+            });
+
+        }
+
+        const existingRating = news.ratings.find(
+            item => item.user.toString() === req.user.id
+        );
+
+        if (existingRating) {
+
+            existingRating.rating = rating;
+
+        } else {
+
+            news.ratings.push({
+
+                user: req.user.id,
+
+                rating
+
+            });
+
+        }
+
+        const total = news.ratings.reduce(
+            (sum, item) => sum + item.rating,
+            0
+        );
+
+        news.averageRating = total / news.ratings.length;
+
+        await news.save();
+
+        res.status(200).json({
+
+            success: true,
+
+            averageRating: news.averageRating,
+
+            totalRatings: news.ratings.length
+
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+
+            success: false,
+
+            message: error.message
+
+        });
+
+    }
+
+};
 
 module.exports = {
     createNews,
@@ -406,5 +688,8 @@ module.exports = {
     getFeaturedNews,
     getTrendingNews,
     getLatestNews,
-    getNewsByCategory
+    getNewsByCategory,
+    getRelatedNews,
+    likeNews,
+    rateNews
 };
