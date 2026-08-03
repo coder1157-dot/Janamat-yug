@@ -8,7 +8,7 @@ const Api = (() => {
   // Change this if the backend runs on a different host/port in production.
   // If the admin panel is served by the same Express app as the API,
   // set BASE_URL to '/api'.
-   const BASE_URL = "http://localhost:5000/api";
+   const BASE_URL =  "https://janamat-yug.onrender.com/api";
   const TOKEN_KEY = 'admin_token';
   const ADMIN_KEY = 'admin_user';
 
