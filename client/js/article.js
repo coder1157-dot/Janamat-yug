@@ -42,7 +42,7 @@ item.coverImage
 ? (
 item.coverImage.startsWith("http")
 ? item.coverImage
-: `http://localhost:5000${item.coverImage}`
+: `https://janamat-yug.onrender.com${item.coverImage}`
 )
 : fallbackImg(item.title),
     category: item.category?.name || item.category || 'समाचार',
