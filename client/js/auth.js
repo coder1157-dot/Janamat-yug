@@ -94,8 +94,21 @@ function initLoginForm() {
 
     try {
       const data = await loginRequest({ email, password });
-      saveSession(data.token, data.user);
-      window.location.href = 'profile.html';
+
+if (data.user.role === "admin") {
+
+    localStorage.setItem("admin_token", data.token);
+    localStorage.setItem("admin_user", JSON.stringify(data.user));
+
+    window.location.href = "admin/dashboard.html";
+
+} else {
+
+    saveSession(data.token, data.user);
+
+    window.location.href = "profile.html";
+
+}
     } catch (err) {
       errorBox.textContent = err.message || 'लॉगिन विफल रहा';
       errorBox.classList.remove('d-none');
