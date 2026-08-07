@@ -1,33 +1,36 @@
-const express = require("express");
+ const express = require("express");
 
 const router = express.Router();
 
-const {
-
-    sendMessage,
-
-    getMessages,
-
-    changeStatus,
-
-    deleteMessage,
-
-    sendContact
-
-} = require("../controllers/contactController");
-
 const protect = require("../middleware/authMiddleware");
-
 const isAdmin = require("../middleware/adminMiddleware");
 
-router.post("/",sendMessage);
+const {
 
-router.post("/contact",sendContact);
+    getComments,
+    addComment,
 
-router.get("/",protect,isAdmin,getMessages);
+    getAllComments,
+    updateComment,
+    deleteComment
 
-router.put("/:id",protect,isAdmin,changeStatus);
+} = require("../controllers/commentController");
 
-router.delete("/:id",protect,isAdmin,deleteMessage);
+ 
+
+router.get("/:id/comments", getComments);
+
+router.post("/:id/comment", protect, addComment);
+
+ 
+
+  
+ 
+router.get("/", protect, isAdmin, getAllComments);
+ 
+
+router.put("/:id", protect, isAdmin, updateComment);
+
+router.delete("/:id", protect, isAdmin, deleteComment);
 
 module.exports = router;

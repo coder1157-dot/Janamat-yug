@@ -793,3 +793,41 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 
 /* Login-guard skeleton (prevents flash) */
 [data-auth-guard] { display: none; }
+
+@media (max-width:991.98px){
+
+.app-sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    transform:translateX(-100%);
+    width:280px;
+    height:100vh;
+    z-index:1055;
+    transition:transform .3s ease;
+}
+
+.app-shell.is-sidebar-open .app-sidebar{
+    transform:translateX(0);
+}
+
+.sidebar-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    opacity:0;
+    visibility:hidden;
+    transition:.3s;
+    z-index:1054;
+}
+
+.app-shell.is-sidebar-open .sidebar-backdrop{
+    opacity:1;
+    visibility:visible;
+}
+
+.app-main{
+    margin-left:0 !important;
+}
+
+}

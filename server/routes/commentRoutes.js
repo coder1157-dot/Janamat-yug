@@ -1,19 +1,36 @@
-const express=require("express");
+ const express = require("express");
 
-const router=express.Router();
+const router = express.Router();
 
-const protect=require("../middleware/authMiddleware");
+const protect = require("../middleware/authMiddleware");
+const isAdmin = require("../middleware/adminMiddleware");
 
 const {
 
-getComments,
+    getComments,
+    addComment,
 
-addComment
+    getAllComments,
+    updateComment,
+    deleteComment
 
-}=require("../controllers/commentController");
+} = require("../controllers/commentController");
 
-router.get("/:id/comments",getComments);
 
-router.post("/:id/comment",protect,addComment);
+// ================= USER =================
 
-module.exports=router;
+router.get("/:id/comments", getComments);
+
+router.post("/:id/comment", protect, addComment);
+
+
+// ================= ADMIN =================
+
+router.get("/", protect, isAdmin, getAllComments);
+
+router.put("/:id", protect, isAdmin, updateComment);
+
+router.delete("/:id", protect, isAdmin, deleteComment);
+
+
+module.exports = router;

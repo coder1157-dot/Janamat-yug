@@ -9,20 +9,24 @@ const Auth = (() => {
 
   function logout() {
     Api.clearSession();
-    location.href = 'login.html';
-  }
+
+    // Main website login page
+    window.location.href = "../login.html";
+}
 
   /**
    * Call at the top of every protected page.
    * Redirects to login.html if there is no token, and reveals
    * the page (guarded behind [data-auth-guard]) once confirmed.
    */
-  function guardPage() {
+   function guardPage() {
     if (!isLoggedIn()) {
-      const next = encodeURIComponent(location.pathname + location.search);
-      location.href = `login.html?next=${next}`;
-      return false;
+        const next = encodeURIComponent(location.pathname + location.search);
+        window.location.href = `../login.html?next=${next}`;
+        return false;
     }
+
+    
     document.querySelectorAll("[data-auth-guard]").forEach((el) => {
 
     el.style.removeProperty("display");

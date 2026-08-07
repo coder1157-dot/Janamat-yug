@@ -222,7 +222,10 @@ if (contactForm) {
     const email = document.getElementById("contactEmail").value;
     const message = document.getElementById("contactMessage").value;
 
-    const res = await  fetch("https://janamat-yug.onrender.com/api/contact", {
+ 
+    const res = await fetch("https://janamat-yug.onrender.com/api/contact", {
+
+ 
       method: "POST",
 
       headers: {

@@ -8,7 +8,7 @@ const Api = (() => {
   // Change this if the backend runs on a different host/port in production.
   // If the admin panel is served by the same Express app as the API,
   // set BASE_URL to '/api'.
-   const BASE_URL =  "https://janamat-yug.onrender.com/api";
+   const BASE_URL = "https://janamat-yug.onrender.com/api";
   const TOKEN_KEY = 'admin_token';
   const ADMIN_KEY = 'admin_user';
 
@@ -82,7 +82,7 @@ const Api = (() => {
         clearSession();
         if (!location.pathname.endsWith('login.html')) {
           const next = encodeURIComponent(location.pathname + location.search);
-          location.href = `login.html?expired=1&next=${next}`;
+           window.location.href = `../login.html?expired=1&next=${next}`;
         }
       }
       const message = (data && (data.message || data.error)) || `Request failed (${response.status})`;

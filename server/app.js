@@ -15,6 +15,7 @@ const seoRoutes = require("./routes/seoRoutes");
 const advertisementRoutes = require("./routes/advertisementRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const settingRoutes=require("./routes/settingRoutes");
+const commentRoutes = require("./routes/commentRoutes");
  
 const path = require("path");
 const app = express();
@@ -37,6 +38,7 @@ app.use("/api/seo", seoRoutes);
 app.use("/api/ads", advertisementRoutes);
 app.use("/api/contact",contactRoutes);
 app.use("/api/settings",settingRoutes);
+app.use("/api/comments", commentRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
