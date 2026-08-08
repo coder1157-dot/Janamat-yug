@@ -814,3 +814,42 @@ font-size:13px;
 }
 
 }
+
+.jy-home-banner{
+    padding:20px 0;
+}
+
+.jy-home-banner img{
+    width:100%;
+    border-radius:15px;
+    object-fit:cover;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+.jy-share-menu{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.jy-share-menu a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    transition:.3s;
+}
+
+.jy-share-menu a:hover{
+    transform:translateY(-4px);
+}
+
+.jy-share-menu img{
+    width:24px;
+    height:24px;
+    object-fit:contain;
+}

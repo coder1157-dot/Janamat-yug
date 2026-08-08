@@ -4,130 +4,230 @@ const slugify = require("slugify");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 
-// Create News
-const createNews = async (req, res) => {
+ const createNews = async (req, res) => {
     try {
+        console.log("========== CREATE NEWS ==========");
+        console.log("BODY:", req.body);
+        console.log("FILES:", req.files);
 
-         const {
-    title,
-    shortDescription,
-    content,
-    category,
-    location,
-    tags,
-    isBreaking,
-    isFeatured,
-    status,
-    metaTitle,
-    metaDescription,
-    keywords,
-    canonicalUrl
-} = req.body;
-
- const coverImage = req.files?.coverImage
-    ? `/uploads/news/images/${req.files.coverImage[0].filename}`
-    : "";
-     
- const gallery = req.files?.gallery
-    ? req.files.gallery.map(file => `/uploads/news/gallery/${file.filename}`)
-    : [];
-
- const videoThumbnail = req.files?.videoThumbnail
-    ? `/uploads/news/thumbnails/${req.files.videoThumbnail[0].filename}`
-    : "";
-
- const video = req.files?.video
-    ? `/uploads/news/videos/${req.files.video[0].filename}`
-    : "";
- 
-const slug =
-    slugify(title || "", {
-        lower: true,
-        strict: false,
-        trim: true
-    }) || `news-${Date.now()}`;
-
-    
-console.log(req.body);
-console.log(req.files);
-
-console.log("SLUG =>", slug);
-console.log("SHORT =>", shortDescription);
-
-        const news = await News.create({
+        const {
             title,
-slug,
-shortDescription,
-content,
-category,
-location,
-tags,
-coverImage,
-video,
-gallery,
-videoThumbnail,
+            shortDescription,
+            content,
+            category,
+            location,
+            tags,
+            isBreaking,
+            isFeatured,
+            status,
+            metaTitle,
+            metaDescription,
+            keywords,
+            canonicalUrl
+        } = req.body;
 
-author: req.user.id,
+        // Required validation
+        if (!title?.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Headline is required"
+            });
+        }
 
-isBreaking,
-isFeatured,
-status,
+        if (!content?.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Article content is required"
+            });
+        }
 
-metaTitle: metaTitle || title,
-metaDescription: metaDescription || shortDescription,
-keywords: keywords || title.split(" "),
-canonicalUrl: canonicalUrl || `/news/${slug}`
+        if (!category) {
+            return res.status(400).json({
+                success: false,
+                message: "Category is required"
+            });
+        }
+
+        if (!shortDescription?.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Excerpt is required"
+            });
+        }
+
+        // ---------------- FILE PATHS ----------------
+
+        const coverImage = req.files?.coverImage?.[0]
+            ? `/uploads/news/images/${req.files.coverImage[0].filename}`
+            : "";
+
+        const gallery = req.files?.gallery
+            ? req.files.gallery.map(
+                file => `/uploads/news/gallery/${file.filename}`
+            )
+            : [];
+
+        const video = req.files?.video?.[0]
+            ? `/uploads/news/videos/${req.files.video[0].filename}`
+            : "";
+
+        const videoThumbnail = req.files?.videoThumbnail?.[0]
+            ? `/uploads/news/thumbnails/${req.files.videoThumbnail[0].filename}`
+            : "";
+
+        // ---------------- SLUG ----------------
+
+        let slug = slugify(title, {
+            lower: true,
+            strict: true,
+            trim: true
         });
 
-         if (news.isBreaking === true && news.status === "published") {
+        // Hindi/unsupported slug fallback
+        if (!slug) {
+            slug = `news-${Date.now()}`;
+        }
 
-    await Notification.create({
+        // Prevent duplicate slug
+        const existingSlug = await News.findOne({ slug });
 
-        title: "🚨 Breaking News",
+        if (existingSlug) {
+            slug = `${slug}-${Date.now()}`;
+        }
 
-        message: news.title,
+        // ---------------- TAGS ----------------
 
-        news: news._id
+        const tagArray = Array.isArray(tags)
+            ? tags
+            : (tags || "")
+                .split(",")
+                .map(tag => tag.trim())
+                .filter(Boolean);
 
-    });
+        // ---------------- KEYWORDS ----------------
 
-}
+        const keywordArray = Array.isArray(keywords)
+            ? keywords
+            : (keywords || title)
+                .split(",")
+                .map(k => k.trim())
+                .filter(Boolean);
 
-        res.status(201).json({
+        // ---------------- CREATE NEWS ----------------
+
+        const news = await News.create({
+            title: title.trim(),
+            slug,
+
+            shortDescription: shortDescription.trim(),
+            content,
+
+            category,
+            location: location || "",
+
+            tags: tagArray,
+
+            coverImage,
+            gallery,
+            video,
+            videoThumbnail,
+
+            author: req.user.id,
+
+            isBreaking: isBreaking === true || isBreaking === "true",
+            isFeatured: isFeatured === true || isFeatured === "true",
+
+            status: status === "draft" ? "draft" : "published",
+
+            metaTitle: metaTitle?.trim() || title.trim(),
+
+            metaDescription:
+                metaDescription?.trim() ||
+                shortDescription.trim(),
+
+            keywords: keywordArray,
+
+            canonicalUrl:
+                canonicalUrl?.trim() ||
+                `/news/${slug}`
+        });
+
+        console.log("NEWS CREATED:", news._id);
+
+        // Breaking notification
+        if (
+            news.isBreaking &&
+            news.status === "published"
+        ) {
+            try {
+                await Notification.create({
+                    title: "🚨 Breaking News",
+                    message: news.title,
+                    news: news._id
+                });
+            } catch (notificationError) {
+                console.error(
+                    "Notification error:",
+                    notificationError.message
+                );
+            }
+        }
+
+        return res.status(201).json({
             success: true,
             message: "News Created Successfully",
             news
         });
 
-    }  catch (error) {
+    } catch (error) {
 
-    console.error("CREATE NEWS ERROR:");
-    console.error(error);
+        console.error("========== CREATE NEWS ERROR ==========");
+        console.error(error);
 
-    res.status(500).json({
-        success: false,
-        message: error.message
-    });
-
-}
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Failed to create news"
+        });
+    }
 };
-
+ 
 const getAllNews = async (req, res) => {
-
     try {
 
-        const news = await News.find()
-            .populate("category")
-            .populate("author", "fullName email")
-            .sort({ createdAt: -1 });
+        const page = Math.max(Number(req.query.page) || 1, 1);
+        const limit = Math.min(Number(req.query.limit) || 10, 50);
+
+        const skip = (page - 1) * limit;
+
+        const [news, totalNews] = await Promise.all([
+
+            News.find()
+                .select(
+                    "title slug shortDescription coverImage category author status publishedAt createdAt views likes isBreaking isFeatured"
+                )
+                .populate("category", "name slug")
+                .populate("author", "fullName email")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+
+            News.countDocuments()
+
+        ]);
 
         res.status(200).json({
             success: true,
-            count: news.length,
+            page,
+            limit,
+            totalNews,
+            totalPages: Math.ceil(totalNews / limit),
             news
         });
 
     } catch (error) {
+
+        console.error("GET ALL NEWS ERROR:", error);
 
         res.status(500).json({
             success: false,
@@ -135,7 +235,6 @@ const getAllNews = async (req, res) => {
         });
 
     }
-
 };
 
 const getSingleNews = async (req, res) => {

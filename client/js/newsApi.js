@@ -7,7 +7,8 @@
  */
 
 /** Change this to your deployed Express server URL */
-export const API_BASE_URL = 'https://janamat-yug.onrender.com/api';
+export const API_BASE_URL = 'http://localhost:5000/api';
+export const SERVER_BASE_URL = 'http://localhost:5000';
 
 /** Categories shown across the site. Update `id` to match your DB categoryId. */
 export const CATEGORIES = [
@@ -109,14 +110,17 @@ export function rateNews(id, rating) {
   return apiRequest(`/news/rate/${encodeURIComponent(id)}`, { method: 'PUT', auth: true, body: { rating } });
 }
 
-export function getComments(id) {
-  return apiRequest(`/news/${encodeURIComponent(id)}/comments`);
+  export function getComments(id) {
+    return apiRequest(`/comments/${encodeURIComponent(id)}/comments`);
 }
 
 export function postComment(id, comment) {
-  return apiRequest(`/news/${encodeURIComponent(id)}/comment`, { method: 'POST', auth: true, body: { comment } });
+    return apiRequest(`/comments/${encodeURIComponent(id)}/comment`, {
+        method: 'POST',
+        auth: true,
+        body: { comment }
+    });
 }
-
 /* ------------------------------------------------------------------ */
 /* Auth endpoints (assumed REST conventions on the same backend)       */
 /* ------------------------------------------------------------------ */

@@ -19,7 +19,8 @@ router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
 router.put("/reset-password/:token", resetPassword);
 
-router.get("/me", protect, getMyProfile);
+ router.get("/me", protect, getMyProfile);
+router.get("/profile", protect, getMyProfile);
 
 router.put("/profile", protect, updateProfile);
 

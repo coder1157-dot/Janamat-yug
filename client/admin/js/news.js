@@ -25,79 +25,341 @@
     }
   }
 
-  // ---------------------------------------------------------------------
-  // ADD NEWS
-  // ---------------------------------------------------------------------
-  function initAddNews() {
+   // ---------------------------------------------------------------------
+// ADD NEWS
+// ---------------------------------------------------------------------
+function initAddNews() {
+
     const form = document.getElementById('newsForm');
+
     if (!form) return;
 
-    fillCategorySelect(document.getElementById('newsCategory'));
+    // Load categories
+    fillCategorySelect(
+        document.getElementById('newsCategory')
+    );
+
+    // --------------------------------------------------
+    // CKEditor
+    // --------------------------------------------------
 
     let editor;
+
     if (window.ClassicEditor) {
-      ClassicEditor.create(document.getElementById('newsContent'))
-        .then((ed) => { editor = ed; })
-        .catch(() => Common.toast('Editor failed to load; a plain textarea will be used instead.', 'warning'));
+
+        ClassicEditor
+            .create(document.getElementById('newsContent'))
+
+            .then((ed) => {
+                editor = ed;
+            })
+
+            .catch((error) => {
+                console.error("CKEditor Error:", error);
+
+                Common.toast(
+                    'Editor failed to load. Using normal textarea.',
+                    'warning'
+                );
+            });
     }
 
+    // --------------------------------------------------
+    // FEATURED IMAGE
+    // --------------------------------------------------
+
     const featuredUpload = Upload.initSingle({
-      dropzoneId: 'featuredDropzone', inputId: 'featuredImageInput', frameId: 'featuredFrame', accept: 'image',
+        dropzoneId: 'featuredDropzone',
+        inputId: 'featuredImageInput',
+        frameId: 'featuredFrame',
+        accept: 'image'
     });
+
+    // --------------------------------------------------
+    // VIDEO
+    // --------------------------------------------------
+
     const videoUpload = Upload.initSingle({
-      dropzoneId: 'videoDropzone', inputId: 'videoInput', frameId: 'videoFrame', accept: 'video',
+        dropzoneId: 'videoDropzone',
+        inputId: 'videoInput',
+        frameId: 'videoFrame',
+        accept: 'video'
     });
-    const gallery = Upload.initGallery({ gridId: 'galleryGrid', inputId: 'galleryInput', max: 10 });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+    // --------------------------------------------------
+    // GALLERY
+    // --------------------------------------------------
 
-      const submitBtn = document.getElementById('newsSubmitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="inline-spinner me-2"></span>Publishing…`;
+    const gallery = Upload.initGallery({
+        gridId: 'galleryGrid',
+        inputId: 'galleryInput',
+        max: 10
+    });
 
-      const fd = new FormData();
-      fd.append('title', document.getElementById('newsTitle').value.trim());
-      fd.append('category', document.getElementById('newsCategory').value);
-      fd.append('status', document.getElementById('newsStatus').value);
-      fd.append('tags', document.getElementById('newsTags').value.trim());
-      
-      fd.append('content', editor ? editor.getData() : document.getElementById('newsContent').value);
-     fd.append('shortDescription', document.getElementById('newsExcerpt').value.trim());
 
-const featured = featuredUpload.getFile();
-if (featured) {
-    fd.append('coverImage', featured);
+    // --------------------------------------------------
+    // PUBLISH ARTICLE
+    // --------------------------------------------------
+
+    form.addEventListener('submit', async function (e) {
+
+        e.preventDefault();
+
+        // HTML validation
+        if (!form.checkValidity()) {
+
+            form.classList.add('was-validated');
+
+            return;
+        }
+
+
+        const submitBtn =
+            document.getElementById('newsSubmitBtn');
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerHTML = `
+            <span class="inline-spinner me-2"></span>
+            Publishing...
+        `;
+
+
+        // --------------------------------------------------
+        // FORM DATA
+        // --------------------------------------------------
+
+        const fd = new FormData();
+
+
+        // Basic information
+
+        fd.append(
+            'title',
+            document.getElementById('newsTitle').value.trim()
+        );
+
+
+        fd.append(
+            'category',
+            document.getElementById('newsCategory').value
+        );
+
+
+        fd.append(
+            'status',
+            document.getElementById('newsStatus').value
+        );
+
+
+        fd.append(
+            'tags',
+            document.getElementById('newsTags').value.trim()
+        );
+
+
+        // --------------------------------------------------
+        // FULL ARTICLE CONTENT
+        // --------------------------------------------------
+
+        const content = editor
+            ? editor.getData()
+            : document.getElementById('newsContent').value;
+
+        fd.append('content', content);
+
+
+        // Excerpt
+
+        fd.append(
+            'shortDescription',
+            document.getElementById('newsExcerpt').value.trim()
+        );
+
+
+        // --------------------------------------------------
+        // FEATURED IMAGE
+        // --------------------------------------------------
+
+        const featured = featuredUpload.getFile();
+
+        if (featured) {
+
+            fd.append(
+                'coverImage',
+                featured
+            );
+
+        }
+
+
+        // --------------------------------------------------
+        // VIDEO
+        // --------------------------------------------------
+
+        const video = videoUpload.getFile();
+
+        if (video) {
+
+            fd.append(
+                'video',
+                video
+            );
+
+        }
+
+
+        // --------------------------------------------------
+        // GALLERY
+        // --------------------------------------------------
+
+        const galleryFiles = gallery.getFiles();
+
+        galleryFiles.forEach((file) => {
+
+            fd.append(
+                'gallery',
+                file
+            );
+
+        });
+
+
+        // --------------------------------------------------
+        // DEBUG
+        // --------------------------------------------------
+
+        console.log("========== ADD NEWS ==========");
+
+        console.log("Title:",
+            document.getElementById('newsTitle').value
+        );
+
+        console.log("Category:",
+            document.getElementById('newsCategory').value
+        );
+
+        console.log("Status:",
+            document.getElementById('newsStatus').value
+        );
+
+        console.log("Featured Image:",
+            featured
+        );
+
+        console.log("Video:",
+            video
+        );
+
+        console.log("Gallery:",
+            galleryFiles
+        );
+
+        console.log("Content:",
+            content
+        );
+
+
+        // --------------------------------------------------
+        // SEND TO BACKEND
+        // --------------------------------------------------
+
+        try {
+
+            const response =
+                await Api.news.create(fd);
+
+            console.log(
+                "NEWS CREATE RESPONSE:",
+                response
+            );
+
+
+            Common.toast(
+                'Article published successfully.',
+                'success'
+            );
+
+
+            // Clear form
+
+            form.reset();
+
+            form.classList.remove(
+                'was-validated'
+            );
+
+
+            featuredUpload.clear();
+
+            videoUpload.clear();
+
+            gallery.clear();
+
+
+            if (editor) {
+
+                editor.setData('');
+
+            }
+
+
+            // Go manage news
+
+            setTimeout(() => {
+
+                location.href =
+                    'manage-news.html';
+
+            }, 900);
+
+
+        } catch (err) {
+
+            console.error(
+                "ADD NEWS ERROR:",
+                err
+            );
+
+
+            Common.toast(
+                err.message ||
+                'Could not publish the article.',
+                'error'
+            );
+
+
+        } finally {
+
+            submitBtn.disabled = false;
+
+            submitBtn.innerHTML = `
+                <i class="bi bi-send-check me-1"></i>
+                Publish Article
+            `;
+
+        }
+
+    });
+
+
+    // --------------------------------------------------
+    // SAVE DRAFT
+    // --------------------------------------------------
+
+    document
+        .getElementById('newsSaveDraftBtn')
+        ?.addEventListener('click', () => {
+
+            document.getElementById(
+                'newsStatus'
+            ).value = 'draft';
+
+            form.requestSubmit();
+
+        });
+
 }
-      
-      const video = videoUpload.getFile();
-      if (video) fd.append('video', video);
-      gallery.getFiles().forEach((file) => fd.append('gallery', file));
-
-      try {
-        await Api.news.create(fd);
-        Common.toast('Article published successfully.', 'success');
-        form.reset();
-        form.classList.remove('was-validated');
-        featuredUpload.clear();
-        videoUpload.clear();
-        gallery.clear();
-        editor?.setData('');
-        setTimeout(() => { location.href = 'manage-news.html'; }, 900);
-      } catch (err) {
-        Common.toast(err.message || 'Could not publish the article.', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-send-check me-1"></i> Publish Article';
-      }
-    });
-
-    document.getElementById('newsSaveDraftBtn')?.addEventListener('click', () => {
-      document.getElementById('newsStatus').value = 'draft';
-      form.requestSubmit();
-    });
-  }
 
   // ---------------------------------------------------------------------
   // MANAGE NEWS (list, filter, paginate, delete)

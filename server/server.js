@@ -4,10 +4,13 @@ const connectDB = require("./config/db");
 const settingRoutes = require("./routes/settingRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const commentRoutes=require("./routes/commentRoutes");
+
+dotenv.config();
+
+
+// Additional Routes
 app.use("/api/settings", settingRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/news",commentRoutes);
-dotenv.config();
 
 // Connect Database
 connectDB();

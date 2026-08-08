@@ -8,7 +8,7 @@ const Api = (() => {
   // Change this if the backend runs on a different host/port in production.
   // If the admin panel is served by the same Express app as the API,
   // set BASE_URL to '/api'.
-   const BASE_URL = "https://janamat-yug.onrender.com/api";
+   const BASE_URL = "http://localhost:5000/api";
   const TOKEN_KEY = 'admin_token';
   const ADMIN_KEY = 'admin_user';
 
@@ -121,6 +121,16 @@ return data;
     auth: {
       login: (email, password) => request('/auth/login', { method: 'POST', body: { email, password } }),
       profile: () => request('/auth/profile'),
+      updateProfile: (body) =>
+        request('/auth/profile', {
+            method: 'PUT',
+            body
+        }),
+      changePassword: (body) =>
+    request('/auth/change-password', {
+      method: 'PUT',
+      body
+    }),
     },
 
     // ---------------- News ----------------
@@ -186,3 +196,6 @@ return data;
     },
   };
 })();
+
+
+

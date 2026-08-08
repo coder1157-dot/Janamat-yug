@@ -19,18 +19,36 @@
       const admin = res?.user || res?.admin || res || {};
       Api.setSession(null, admin);
 
-      document.getElementById('profileName').value = admin.name || admin.username || '';
-      document.getElementById('profileEmail').value = admin.email || '';
-      document.getElementById('profileRole').value = admin.role || 'Administrator';
-      document.getElementById('profileJoined').value = Common.formatDate(admin.createdAt);
-      document.getElementById('profileAvatarInitials').textContent = Common.initials(admin.name || admin.username);
-      document.getElementById('profileDisplayName').textContent = admin.name || admin.username || 'Admin';
-      document.getElementById('profileDisplayRole').textContent = admin.role || 'Administrator';
-      document.getElementById('profileJoinedDisplay').textContent = Common.formatDate(admin.createdAt);
-      if (admin.avatar) {
-        document.getElementById('profileAvatarWrap').innerHTML =
-          `<img src="${admin.avatar}" alt="${Common.escapeHtml(admin.name || 'Admin')}">`;
-      }
+       document.getElementById("profileName").value =
+    admin.fullName || "";
+
+document.getElementById("profileEmail").value =
+    admin.email || "";
+
+document.getElementById("profileRole").value =
+    admin.role || "Administrator";
+
+document.getElementById("profileJoined").value =
+    Common.formatDate(admin.createdAt);
+
+document.getElementById("profileAvatarInitials").textContent =
+    admin.fullName
+        ? admin.fullName.charAt(0).toUpperCase()
+        : "A";
+
+document.getElementById("profileDisplayName").textContent =
+    admin.fullName || "Admin";
+
+document.getElementById("profileDisplayRole").textContent =
+    admin.role || "Administrator";
+
+document.getElementById("profileJoinedDisplay").textContent =
+    Common.formatDate(admin.createdAt);
+
+if (admin.avatar) {
+    document.getElementById("profileAvatarWrap").innerHTML =
+        `<img src="${admin.avatar}" alt="${Common.escapeHtml(admin.fullName || "Admin")}">`;
+}
     } catch (err) {
       Common.toast(err.message || 'Could not load your profile.', 'error');
     } finally {
@@ -38,15 +56,74 @@
     }
   }
 
-  document.getElementById('profileForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    Common.toast('Profile editing needs a backend update endpoint (e.g. PUT /api/auth/profile) that is not part of the current API.', 'warning');
-  });
+  document.getElementById("profileForm")?.addEventListener("submit", async (e) => {
 
-  document.getElementById('passwordForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    Common.toast('Password changes need a dedicated backend endpoint that is not part of the current API.', 'warning');
-  });
+
+    const fullName = document.getElementById("profileName").value.trim();
+
+    if (!fullName) {
+        return Common.toast("Name is required", "error");
+    }
+
+    try {
+
+        const res = await Api.auth.updateProfile({
+            fullName
+        });
+
+        const user = res.user || res;
+
+        document.getElementById("profileDisplayName").textContent = user.fullName;
+        document.getElementById("profileAvatarInitials").textContent =
+            user.fullName.charAt(0).toUpperCase();
+
+        Api.setSession(null, user);
+
+        Common.toast("Profile Updated Successfully", "success");
+
+    } catch (err) {
+
+        Common.toast(err.message, "error");
+
+    }
+
+});
+
+   document.getElementById("passwordForm")?.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const currentPassword = document.getElementById("currentPassword").value;
+
+    const newPassword = document.getElementById("newPassword").value;
+
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (newPassword !== confirmPassword) {
+
+        return Common.toast("Passwords do not match", "error");
+
+    }
+
+    try {
+
+        await Api.auth.changePassword({
+            currentPassword,
+            newPassword
+        });
+
+        Common.toast("Password Updated Successfully", "success");
+
+        e.target.reset();
+
+    } catch (err) {
+
+        Common.toast(err.message, "error");
+
+    }
+
+});
 
   load();
 })();
