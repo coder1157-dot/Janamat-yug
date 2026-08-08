@@ -223,7 +223,7 @@ if (contactForm) {
     const message = document.getElementById("contactMessage").value;
 
  
-    const res = await fetch("http://localhost:5000/api/contact", {
+    const res = await fetch("https://janamat-yug-63q8.onrender.com/api/contact", {
 
  
       method: "POST",
