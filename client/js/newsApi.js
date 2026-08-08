@@ -7,8 +7,8 @@
  */
 
 /** Change this to your deployed Express server URL */
-export const API_BASE_URL = 'http://localhost:5000/api';
-export const SERVER_BASE_URL = 'http://localhost:5000';
+export const API_BASE_URL = 'https://janamat-yug-63q8.onrender.com/api';
+export const SERVER_BASE_URL = 'https://janamat-yug-63q8.onrender.com';
 
 /** Categories shown across the site. Update `id` to match your DB categoryId. */
 export const CATEGORIES = [
