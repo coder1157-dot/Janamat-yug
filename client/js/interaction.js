@@ -6,8 +6,14 @@
  * Imported by article.js, bookmark.js, news.js, category.js.
  * ------------------------------------------------------------------
  */
-
-import { likeNews, rateNews, addBookmarkRequest, removeBookmarkRequest, getBookmarksRequest } from './newsApi.js';
+ import {
+    API_BASE_URL,
+    likeNews,
+    rateNews,
+    addBookmarkRequest,
+    removeBookmarkRequest,
+    getBookmarksRequest
+} from './newsApi.js';
 import { isLoggedIn } from './auth.js';
 
 const BOOKMARK_KEY = 'jyug_bookmarks';
@@ -190,28 +196,79 @@ export function initRatingWidget(container, newsId, currentRating = 0) {
 /* ------------------------------------------------------------------ */
 /* Share                                                                */
 /* ------------------------------------------------------------------ */
+ export function shareTo(platform, { url, title }) {
 
-export function shareTo(platform, { url, title }) {
-  const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
-  const links = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-    telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`
-  };
+    // Current news slug निकालो
+    let slug = '';
 
-  if (platform === 'copy') {
-    navigator.clipboard.writeText(url)
-      .then(() => showToast('लिंक कॉपी हो गया', 'success'))
-      .catch(() => showToast('लिंक कॉपी नहीं हो सका', 'error'));
-    return;
-  }
+    try {
+        const currentUrl = new URL(url, window.location.origin);
+        slug = currentUrl.searchParams.get('slug') || '';
+    } catch (err) {
+        console.error('Could not read news slug:', err);
+    }
 
-  const target = links[platform];
-  if (target) window.open(target, '_blank', 'noopener,noreferrer,width=600,height=500');
+    /*
+     * API_BASE_URL:
+     * http://localhost:5000/api
+     *
+     * Backend root:
+     * http://localhost:5000
+     */
+    const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+
+    /*
+     * IMPORTANT:
+     * Social media crawlers will visit this URL first.
+     * Backend will add og:image, og:title, etc.
+     * and then redirect user to the actual news page.
+     */
+    const shareUrl = slug
+        ? `${BACKEND_URL}/share/news/${encodeURIComponent(slug)}`
+        : url;
+
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedTitle = encodeURIComponent(title);
+
+    const links = {
+
+        facebook:
+            `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+
+        twitter:
+            `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+
+        whatsapp:
+            `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+
+        telegram:
+            `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`
+    };
+
+    // Copy link
+    if (platform === 'copy') {
+
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => {
+                showToast('लिंक कॉपी हो गया', 'success');
+            })
+            .catch(() => {
+                showToast('लिंक कॉपी नहीं हो सका', 'error');
+            });
+
+        return;
+    }
+
+    const target = links[platform];
+
+    if (target) {
+        window.open(
+            target,
+            '_blank',
+            'noopener,noreferrer,width=600,height=500'
+        );
+    }
 }
-
 /**
  * Wires up all [data-share] buttons within a container.
  */
