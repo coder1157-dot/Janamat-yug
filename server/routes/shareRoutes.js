@@ -17,95 +17,178 @@ router.get("/news/:slug", async (req, res) => {
         }
 
         // =========================
-        // FEATURE IMAGE
+        // FEATURE / COVER IMAGE
         // =========================
 
-        let image = news.featuredImage || news.image || "";
+        let image = news.image || news.coverImage || "";
 
         if (image && !image.startsWith("http")) {
             image = `${BACKEND_URL}${image.startsWith("/") ? "" : "/"}${image}`;
         }
 
-        // fallback image
+        // Fallback image
         if (!image) {
             image = `${FRONTEND_URL}/assets/images/default-news.jpg`;
         }
 
         // =========================
-        // TITLE
+        // NEWS DATA
         // =========================
 
         const title = news.title || "जनमत युग";
 
         const description =
-            news.subtitle ||
+            news.shortDescription ||
             news.description ||
             "जनमत युग हिंदी समाचार पोर्टल";
 
-        // Actual frontend article URL
         const articleUrl =
             `${FRONTEND_URL}/news.html?slug=${encodeURIComponent(slug)}`;
 
         // =========================
-        // OG HTML
+        // SHARE PREVIEW HTML
         // =========================
 
         res.send(`
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>${escapeHtml(title)}</title>
 
-<meta name="description" content="${escapeHtml(description)}">
+<meta name="description"
+      content="${escapeHtml(description)}">
 
-<!-- Open Graph -->
+<!-- ========================= -->
+<!-- OPEN GRAPH / FACEBOOK -->
+<!-- ========================= -->
+
 <meta property="og:type" content="article">
-<meta property="og:title" content="${escapeHtml(title)}">
-<meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:image" content="${image}">
-<meta property="og:image:secure_url" content="${image}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="${articleUrl}">
-<meta property="og:site_name" content="जनमत युग">
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${escapeHtml(title)}">
-<meta name="twitter:description" content="${escapeHtml(description)}">
-<meta name="twitter:image" content="${image}">
+<meta property="og:title"
+      content="${escapeHtml(title)}">
 
-<link rel="canonical" href="${articleUrl}">
+<meta property="og:description"
+      content="${escapeHtml(description)}">
+
+<meta property="og:image"
+      content="${image}">
+
+<meta property="og:image:secure_url"
+      content="${image}">
+
+<meta property="og:image:type"
+      content="image/jpeg">
+
+<meta property="og:image:width"
+      content="1200">
+
+<meta property="og:image:height"
+      content="630">
+
+<meta property="og:url"
+      content="${articleUrl}">
+
+<meta property="og:site_name"
+      content="जनमत युग">
+
+
+<!-- ========================= -->
+<!-- TWITTER / X -->
+<!-- ========================= -->
+
+<meta name="twitter:card"
+      content="summary_large_image">
+
+<meta name="twitter:title"
+      content="${escapeHtml(title)}">
+
+<meta name="twitter:description"
+      content="${escapeHtml(description)}">
+
+<meta name="twitter:image"
+      content="${image}">
+
+<meta name="twitter:url"
+      content="${articleUrl}">
+
+
+<style>
+
+body {
+    margin: 0;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+img {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+p {
+    color: #555;
+    line-height: 1.6;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<h1>${escapeHtml(title)}</h1>
+<div class="container">
 
-<p>${escapeHtml(description)}</p>
+    <img
+        src="${image}"
+        alt="${escapeHtml(title)}"
+    >
 
-<img
-    src="${image}"
-    alt="${escapeHtml(title)}"
-    style="max-width:100%;"
->
+    <h1>${escapeHtml(title)}</h1>
 
-<p>
-    <a href="${articleUrl}">
-        समाचार पढ़ें
-    </a>
-</p>
+    <p>${escapeHtml(description)}</p>
+
+    <p>
+        जनमत युग पर पूरा समाचार पढ़ने के लिए
+        <a href="${articleUrl}">
+            यहां क्लिक करें
+        </a>
+    </p>
+
+</div>
+
 
 <script>
-    window.location.replace(${JSON.stringify(articleUrl)});
+
+// User ko actual frontend article par bhejo
+setTimeout(() => {
+    window.location.href = ${JSON.stringify(articleUrl)};
+}, 1500);
+
 </script>
 
 </body>
+
 </html>
         `);
 
@@ -119,14 +202,19 @@ router.get("/news/:slug", async (req, res) => {
 });
 
 
-// Prevent HTML injection
+// =========================
+// HTML ESCAPE
+// =========================
+
 function escapeHtml(str = "") {
+
     return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 module.exports = router;
