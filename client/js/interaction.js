@@ -196,9 +196,12 @@ export function initRatingWidget(container, newsId, currentRating = 0) {
 /* ------------------------------------------------------------------ */
 /* Share                                                                */
 /* ------------------------------------------------------------------ */
- export function shareTo(platform, { url, title }) {
+/* ------------------------------------------------------------------ */
+/* Share                                                              */
+/* ------------------------------------------------------------------ */
 
-    // Current news slug निकालो
+export function shareTo(platform, { url, title }) {
+
     let slug = '';
 
     try {
@@ -208,50 +211,43 @@ export function initRatingWidget(container, newsId, currentRating = 0) {
         console.error('Could not read news slug:', err);
     }
 
-    /*
-     * API_BASE_URL:
-     * http://localhost:5000/api
-     *
-     * Backend root:
-     * http://localhost:5000
-     */
-    export const API_BASE_URL =
-    "https://janamat-yug-63q8.onrender.com/api";
-
-    /*
-     * IMPORTANT:
-     * Social media crawlers will visit this URL first.
-     * Backend will add og:image, og:title, etc.
-     * and then redirect user to the actual news page.
-     */
-    const shareUrl = slug
-        ? `${BACKEND_URL}/share/news/${encodeURIComponent(slug)}`
+    // Actual frontend article URL
+    const frontendShareUrl = slug
+        ? `${window.location.origin}/news.html?slug=${encodeURIComponent(slug)}`
         : url;
 
-    const encodedUrl = encodeURIComponent(shareUrl);
-    const encodedTitle = encodeURIComponent(title);
+    // Backend URL is ONLY used for social-media preview generation
+    const backendUrl = API_BASE_URL.replace(/\/api\/?$/, '');
+
+    const previewUrl = slug
+        ? `${backendUrl}/share/news/${encodeURIComponent(slug)}`
+        : frontendShareUrl;
+
+    const encodedPreviewUrl = encodeURIComponent(previewUrl);
+    const encodedTitle = encodeURIComponent(title || 'जनमत युग');
 
     const links = {
 
         facebook:
-            `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+            `https://www.facebook.com/sharer/sharer.php?u=${encodedPreviewUrl}`,
 
         twitter:
-            `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+            `https://twitter.com/intent/tweet?url=${encodedPreviewUrl}&text=${encodedTitle}`,
 
         whatsapp:
-            `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+            `https://wa.me/?text=${encodedTitle}%20${encodedPreviewUrl}`,
 
         telegram:
-            `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`
+            `https://t.me/share/url?url=${encodedPreviewUrl}&text=${encodedTitle}`
     };
 
-    // Copy link
+    // IMPORTANT:
+    // Copy should ALWAYS copy actual frontend article URL
     if (platform === 'copy') {
 
-        navigator.clipboard.writeText(shareUrl)
+        navigator.clipboard.writeText(frontendShareUrl)
             .then(() => {
-                showToast('लिंक कॉपी हो गया', 'success');
+                showToast('न्यूज़ लिंक कॉपी हो गया', 'success');
             })
             .catch(() => {
                 showToast('लिंक कॉपी नहीं हो सका', 'error');
@@ -270,6 +266,7 @@ export function initRatingWidget(container, newsId, currentRating = 0) {
         );
     }
 }
+
 /**
  * Wires up all [data-share] buttons within a container.
  */
