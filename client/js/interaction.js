@@ -215,7 +215,8 @@ export function initRatingWidget(container, newsId, currentRating = 0) {
      * Backend root:
      * http://localhost:5000
      */
-    const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+    export const API_BASE_URL =
+    "https://janamat-yug-63q8.onrender.com/api";
 
     /*
      * IMPORTANT:
