@@ -1,7 +1,7 @@
  const express = require("express");
 const router = express.Router();
 
-const News = require("../models/newsModel");
+const News = require("../models/News");
 
 const FRONTEND_URL = "https://janamat-yug-sandy.vercel.app";
 const BACKEND_URL = "https://janamat-yug-63q8.onrender.com";
