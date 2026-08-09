@@ -1,187 +1,106 @@
-const express = require("express");
+ const express = require("express");
 const router = express.Router();
-
 const News = require("../models/News");
 
+const SERVER_URL =
+  process.env.SERVER_BASE_URL ||
+  "https://janamat-yug-63q8.onrender.com";
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL ||
+  "https://janamat-yug-sandy.vercel.app";
+
 router.get("/news/:slug", async (req, res) => {
-    try {
-        const news = await News.findOne({
-            slug: req.params.slug
-        }).populate("category", "name");
+  try {
+    const news = await News.findOne({
+      slug: req.params.slug,
+      status: "published"
+    });
 
-        if (!news) {
-            return res.status(404).send("News not found");
-        }
+    if (!news) {
+      return res.status(404).send("News Not Found");
+    }
 
-        const frontendURL =
-            "https://janamat-yug-sandy.vercel.app";
+    // Relative image path -> absolute URL
+    const imageUrl = news.coverImage
+      ? `${SERVER_URL}${news.coverImage}`
+      : `${FRONTEND_URL}/images/logo.png`;
 
-        // IMPORTANT:
-        // Change this to your DEPLOYED backend URL
-        const backendURL =
-            "https://janamat-yug-api.onrender.com";
+    const title = news.metaTitle || news.title || "Janamat Yug";
 
-        const newsURL =
-            `${frontendURL}/news.html?slug=${encodeURIComponent(news.slug)}`;
+    const description =
+      news.metaDescription ||
+      news.shortDescription ||
+      "जनमत युग — हर खबर जनता की आवाज";
 
-        // Feature image
-        let imageURL = news.coverImage || "";
+    const finalUrl =
+      `${FRONTEND_URL}/news.html?slug=${encodeURIComponent(news.slug)}`;
 
-        // If image is stored as /uploads/...
-        if (imageURL.startsWith("/")) {
-            imageURL = backendURL + imageURL;
-        }
+    const escapeHtml = (str = "") =>
+      String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-        // If DB contains only filename
-        if (
-            imageURL &&
-            !imageURL.startsWith("http://") &&
-            !imageURL.startsWith("https://")
-        ) {
-            imageURL =
-                `${backendURL}/uploads/news/images/${imageURL}`;
-        }
+    res.set("Cache-Control", "no-store");
 
-        const title = news.title || "जनमत युग";
-
-        const description =
-            news.shortDescription ||
-            news.content?.replace(/<[^>]*>/g, "").substring(0, 160) ||
-            "जनमत युग - निष्पक्ष और भरोसेमंद हिंदी समाचार";
-
-        const escapedTitle = title
-            .replace(/&/g, "&amp;")
-            .replace(/"/g, "&quot;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-        const escapedDescription = description
-            .replace(/&/g, "&amp;")
-            .replace(/"/g, "&quot;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-        res.send(`
+    res.send(`
 <!DOCTYPE html>
 <html lang="hi">
-
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <title>${escapedTitle} | जनमत युग</title>
+<title>${escapeHtml(title)} | जनमत युग</title>
 
-    <meta
-        name="description"
-        content="${escapedDescription}"
-    >
+<meta name="description"
+      content="${escapeHtml(description)}">
 
-    <!-- ================= OPEN GRAPH ================= -->
+<!-- OPEN GRAPH -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:image" content="${escapeHtml(imageUrl)}">
+<meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="${escapeHtml(req.protocol + "://" + req.get("host") + req.originalUrl)}">
+<meta property="og:site_name" content="Janamat Yug">
 
-    <meta property="og:type" content="article">
+<!-- TWITTER / WHATSAPP COMPATIBILITY -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(title)}">
+<meta name="twitter:description" content="${escapeHtml(description)}">
+<meta name="twitter:image" content="${escapeHtml(imageUrl)}">
 
-    <meta
-        property="og:title"
-        content="${escapedTitle}"
-    >
-
-    <meta
-        property="og:description"
-        content="${escapedDescription}"
-    >
-
-    <meta
-        property="og:image"
-        content="${imageURL}"
-    >
-
-    <meta
-        property="og:image:secure_url"
-        content="${imageURL}"
-    >
-
-    <meta
-        property="og:image:type"
-        content="image/jpeg"
-    >
-
-    <meta
-        property="og:image:width"
-        content="1200"
-    >
-
-    <meta
-        property="og:image:height"
-        content="630"
-    >
-
-    <meta
-        property="og:url"
-        content="${newsURL}"
-    >
-
-    <meta
-        property="og:site_name"
-        content="जनमत युग"
-    >
-
-    <!-- ================= TWITTER ================= -->
-
-    <meta
-        name="twitter:card"
-        content="summary_large_image"
-    >
-
-    <meta
-        name="twitter:title"
-        content="${escapedTitle}"
-    >
-
-    <meta
-        name="twitter:description"
-        content="${escapedDescription}"
-    >
-
-    <meta
-        name="twitter:image"
-        content="${imageURL}"
-    >
-
-    <link
-        rel="canonical"
-        href="${newsURL}"
-    >
-
-    <script>
-        window.location.replace(
-            ${JSON.stringify(newsURL)}
-        );
-    </script>
+<meta http-equiv="refresh"
+      content="0;url=${escapeHtml(finalUrl)}">
 
 </head>
 
 <body>
 
-    <p>खबर लोड हो रही है...</p>
+<p>समाचार लोड हो रहा है...</p>
 
-    <p>
-        <a href="${newsURL}">
-            खबर पढ़ने के लिए यहां क्लिक करें
-        </a>
-    </p>
+<p>
+<a href="${escapeHtml(finalUrl)}">
+समाचार पढ़ें
+</a>
+</p>
 
 </body>
-
 </html>
-        `);
+    `);
 
-    } catch (error) {
+  } catch (error) {
 
-        console.error("Share route error:", error);
+    console.error("SHARE NEWS ERROR:", error);
 
-        res.status(500).send("Server Error");
-
-    }
+    res.status(500).send("Server Error");
+  }
 });
 
 module.exports = router;
