@@ -1,4 +1,5 @@
   const News = require("../models/News");
+ const uploadToCloudinary = require("../utils/cloudinaryUpload");
 const mongoose = require("mongoose"); 
 const Category = require("../models/Category");
 const slugify = require("slugify");
@@ -58,23 +59,48 @@ const Notification = require("../models/Notification");
 
         // ---------------- FILE PATHS ----------------
 
-        const coverImage = req.files?.coverImage?.[0]
-            ? `/uploads/news/images/${req.files.coverImage[0].filename}`
-            : "";
+         // ---------------- CLOUDINARY FILE UPLOAD ----------------
 
-        const gallery = req.files?.gallery
-            ? req.files.gallery.map(
-                file => `/uploads/news/gallery/${file.filename}`
+let coverImage = "";
+let gallery = [];
+let video = "";
+let videoThumbnail = "";
+
+// Cover Image
+if (req.files?.coverImage?.[0]) {
+    coverImage = await uploadToCloudinary(
+        req.files.coverImage[0].path,
+        "janamat-yug/news/images"
+    );
+}
+
+// Gallery Images
+if (req.files?.gallery?.length) {
+    gallery = await Promise.all(
+        req.files.gallery.map(file =>
+            uploadToCloudinary(
+                file.path,
+                "janamat-yug/news/gallery"
             )
-            : [];
+        )
+    );
+}
 
-        const video = req.files?.video?.[0]
-            ? `/uploads/news/videos/${req.files.video[0].filename}`
-            : "";
+// Video
+if (req.files?.video?.[0]) {
+    video = await uploadToCloudinary(
+        req.files.video[0].path,
+        "janamat-yug/news/videos"
+    );
+}
 
-        const videoThumbnail = req.files?.videoThumbnail?.[0]
-            ? `/uploads/news/thumbnails/${req.files.videoThumbnail[0].filename}`
-            : "";
+// Video Thumbnail
+if (req.files?.videoThumbnail?.[0]) {
+    videoThumbnail = await uploadToCloudinary(
+        req.files.videoThumbnail[0].path,
+        "janamat-yug/news/thumbnails"
+    );
+}
 
         // ---------------- SLUG ----------------
 
@@ -334,10 +360,13 @@ const updateNews = async (req, res) => {
 
         if (req.files?.coverImage?.length) {
 
-            const file = req.files.coverImage[0];
+    const file = req.files.coverImage[0];
 
-            news.coverImage = `/uploads/news/images/${file.filename}`;
-        }
+    news.coverImage = await uploadToCloudinary(
+        file.path,
+        "janamat-yug/news/images"
+    );
+}
 
         // -----------------------------
         // GALLERY
@@ -345,8 +374,13 @@ const updateNews = async (req, res) => {
 
         if (req.files?.gallery?.length) {
 
-            news.gallery = req.files.gallery.map(file =>
-                `/uploads/news/images/${file.filename}`
+            news.gallery = await Promise.all(
+                req.files.gallery.map(file =>
+                    uploadToCloudinary(
+                        file.path,
+                        "janamat-yug/news/gallery"
+                    )
+                )
             );
 
         }
@@ -355,12 +389,15 @@ const updateNews = async (req, res) => {
         // VIDEO
         // -----------------------------
 
-        if (req.files?.video?.length) {
+        if (req.files?.videoThumbnail?.length) {
 
-            const file = req.files.video[0];
+    const file = req.files.videoThumbnail[0];
 
-            news.video = `/uploads/news/videos/${file.filename}`;
-        }
+    news.videoThumbnail = await uploadToCloudinary(
+        file.path,
+        "janamat-yug/news/thumbnails"
+    );
+}
 
         // -----------------------------
         // VIDEO THUMBNAIL
