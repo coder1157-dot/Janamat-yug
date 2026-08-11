@@ -1,4 +1,4 @@
-/* ==========================================================================
+ /* ==========================================================================
    news.js — powers add-news.html, manage-news.html and edit-news.html.
    Uses GET/POST/PUT/DELETE /api/news and GET /api/categories (for the
    category picker). Image/video uploads ride along on the same
@@ -487,7 +487,8 @@ function initAddNews() {
 
         document.getElementById('newsTitle').value = item.title || '';
         document.getElementById('newsTags').value = (item.tags || []).join?.(', ') || item.tags || '';
-        document.getElementById('newsExcerpt').value = item.excerpt || '';
+        document.getElementById('newsExcerpt').value =
+  item.shortDescription || item.excerpt || '';
         document.getElementById('newsStatus').value = item.status || 'published';
         if (editor) editor.setData(item.content || ''); else document.getElementById('newsContent').value = item.content || '';
 
