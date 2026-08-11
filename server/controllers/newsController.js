@@ -70,7 +70,7 @@ let videoThumbnail = "";
 if (req.files?.coverImage?.[0]) {
     coverImage = await uploadToCloudinary(
         req.files.coverImage[0].path,
-        "janamat-yug/news/images"
+        "news/images"
     );
 }
 
@@ -80,7 +80,7 @@ if (req.files?.gallery?.length) {
         req.files.gallery.map(file =>
             uploadToCloudinary(
                 file.path,
-                "janamat-yug/news/gallery"
+                "news/gallery"
             )
         )
     );
@@ -90,7 +90,7 @@ if (req.files?.gallery?.length) {
 if (req.files?.video?.[0]) {
     video = await uploadToCloudinary(
         req.files.video[0].path,
-        "janamat-yug/news/videos"
+        "news/videos"
     );
 }
 
@@ -98,7 +98,7 @@ if (req.files?.video?.[0]) {
 if (req.files?.videoThumbnail?.[0]) {
     videoThumbnail = await uploadToCloudinary(
         req.files.videoThumbnail[0].path,
-        "janamat-yug/news/thumbnails"
+        "news/thumbnails"
     );
 }
 
