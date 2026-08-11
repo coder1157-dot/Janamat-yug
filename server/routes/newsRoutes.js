@@ -1,4 +1,4 @@
- const express = require("express");
+  const express = require("express");
 
 const router = express.Router();
 
@@ -25,8 +25,7 @@ const {
     rateNews
 
 } = require("../controllers/newsController");
-
-  router.post(
+ router.post(
     "/",
     protect,
     upload.fields([
@@ -66,22 +65,40 @@ router.get("/latest", getLatestNews);
 
 router.get("/category/:categoryId", getNewsByCategory);
 
-router.get("/search", searchNews);
-
 router.get("/related/:id", getRelatedNews);
 
 router.put("/like/:id", protect, likeNews);
 
 router.put("/rate/:id", protect, rateNews);
 
+// Single news — slug OR MongoDB ID
 router.get("/:slug", getSingleNews);
 
-router.put("/:id", protect, updateNews);
+// Update news
+router.put(
+    "/:id",
+    protect,
+    upload.fields([
+        {
+            name: "coverImage",
+            maxCount: 1
+        },
+        {
+            name: "gallery",
+            maxCount: 10
+        },
+        {
+            name: "video",
+            maxCount: 1
+        },
+        {
+            name: "videoThumbnail",
+            maxCount: 1
+        }
+    ]),
+    updateNews
+);
 
 router.delete("/:id", protect, deleteNews);
-
-
-
-
 
 module.exports = router;
