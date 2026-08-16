@@ -123,42 +123,136 @@ function wireBookmarkButtons(container) {
 /* Hero section                                                        */
 /* ------------------------------------------------------------------ */
 
-async function renderHero() {
+ async function renderHero() {
   const mainEl = document.getElementById('heroMain');
   const sideEl = document.getElementById('heroSide');
+
   if (!mainEl) return;
 
   try {
-    const featured = await getFeaturedNews();
-    const list = (Array.isArray(featured) ? featured : (featured.news || featured.data || [])).map(normalize);
-    if (!list.length) throw new Error('empty');
+    // Pehle featured news try karo
+    let response = await getFeaturedNews();
 
-    const [main, ...rest] = list;
-    mainEl.style.backgroundImage = `url('${main.image}')`;
-    mainEl.innerHTML = `
-      <div class="jy-hero-body">
-        <span class="badge-cat">${main.category}</span>
-        <h1><a href="news.html?slug=${encodeURIComponent(main.slug)}">${main.title}</a></h1>
-        <div class="jy-hero-meta"><i class="fa-regular fa-calendar"></i> ${formatDate(main.date)} &nbsp; <i class="fa-regular fa-eye"></i> ${formatViews(main.views)}</div>
-      </div>
-    `;
+    let list = (
+      Array.isArray(response)
+        ? response
+        : (response.news || response.data || [])
+    ).map(normalize);
 
-    if (sideEl) {
-      sideEl.innerHTML = rest.slice(0, 4).map((n) => `
-        <div class="jy-hero-side-item">
-          <img src="${n.image}" alt="${n.title}" loading="lazy">
-          <div>
-            <span class="badge-cat" style="font-size:0.6rem;">${n.category}</span>
-            <h6><a href="news.html?slug=${encodeURIComponent(n.slug)}">${n.title}</a></h6>
+    // Agar featured news nahi hai to latest news use karo
+    if (!list.length) {
+      response = await getLatestNews();
+
+      list = (
+        Array.isArray(response)
+          ? response
+          : (response.news || response.data || [])
+      ).map(normalize);
+    }
+
+    if (!list.length) {
+      throw new Error('No news available');
+    }
+
+    let currentIndex = 0;
+
+    // Hero news show karne ka function
+    const showHeroNews = (index) => {
+
+      const news = list[index];
+
+      mainEl.style.backgroundImage = `url('${news.image}')`;
+
+      mainEl.innerHTML = `
+        <div class="jy-hero-body">
+          <span class="badge-cat">${news.category}</span>
+
+          <h1>
+            <a href="news.html?slug=${encodeURIComponent(news.slug)}">
+              ${news.title}
+            </a>
+          </h1>
+
+          <p class="mt-2">
+            ${news.excerpt || ''}
+          </p>
+
+          <div class="jy-hero-meta">
+            <i class="fa-regular fa-calendar"></i>
+            ${formatDate(news.date)}
+            &nbsp;
+            <i class="fa-regular fa-eye"></i>
+            ${formatViews(news.views)}
           </div>
         </div>
-      `).join('');
-    }
+      `;
+
+      // Side news
+      if (sideEl) {
+
+        const sideNews = list
+          .filter((_, i) => i !== index)
+          .slice(0, 4);
+
+        sideEl.innerHTML = sideNews.map((n) => `
+          <div class="jy-hero-side-item">
+
+            <img
+              src="${n.image}"
+              alt="${n.title}"
+              loading="lazy"
+              onerror="this.src='${fallbackImg(n.slug)}'"
+            >
+
+            <div>
+              <span
+                class="badge-cat"
+                style="font-size:0.6rem;"
+              >
+                ${n.category}
+              </span>
+
+              <h6>
+                <a href="news.html?slug=${encodeURIComponent(n.slug)}">
+                  ${n.title}
+                </a>
+              </h6>
+            </div>
+
+          </div>
+        `).join('');
+      }
+    };
+
+    // Pehli news
+    showHeroNews(currentIndex);
+
+    // Har 5 second me next news
+    setInterval(() => {
+
+      currentIndex++;
+
+      if (currentIndex >= list.length) {
+        currentIndex = 0;
+      }
+
+      showHeroNews(currentIndex);
+
+    }, 5000);
+
   } catch (err) {
-    mainEl.innerHTML = `<div class="jy-hero-body"><p class="mb-0">विशेष समाचार लोड नहीं हो सका</p></div>`;
+
+    console.error("Hero News Error:", err);
+
+    mainEl.innerHTML = `
+      <div class="jy-hero-body">
+        <p class="mb-0">
+          विशेष समाचार लोड नहीं हो सका
+        </p>
+      </div>
+    `;
   }
 }
-
 /* ------------------------------------------------------------------ */
 /* Breaking news ticker                                                */
 /* ------------------------------------------------------------------ */
