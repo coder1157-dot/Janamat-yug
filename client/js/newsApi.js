@@ -20,8 +20,8 @@ export const SERVER_BASE_URL = 'https://janamat-yug-63q8.onrender.com';
   { id: 'vyapar', name: 'व्यापार' },
   { id: 'technology', name: 'टेक्नोलॉजी' },
   { id: 'health', name: 'स्वास्थ्य' },
-  { id: 'education', name: 'शिक्षा' },
-  { id: 'crime', name: 'क्राइम' }
+  { id: 'education', name: 'शिक्षा' }
+  
 ];
 
 const TOKEN_KEY = 'jyug_token';
