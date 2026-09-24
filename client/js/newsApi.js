@@ -11,7 +11,7 @@ export const API_BASE_URL = 'https://janamat-yug-63q8.onrender.com/api';
 export const SERVER_BASE_URL = 'https://janamat-yug-63q8.onrender.com';
 
 /** Categories shown across the site. Update `id` to match your DB categoryId. */
-export const CATEGORIES = [
+ export const CATEGORIES = [
   { id: 'rajniti', name: 'राजनीति' },
   { id: 'desh', name: 'देश' },
   { id: 'videsh', name: 'विदेश' },
@@ -20,7 +20,8 @@ export const CATEGORIES = [
   { id: 'vyapar', name: 'व्यापार' },
   { id: 'technology', name: 'टेक्नोलॉजी' },
   { id: 'health', name: 'स्वास्थ्य' },
-  { id: 'education', name: 'शिक्षा' }
+  { id: 'education', name: 'शिक्षा' },
+  { id: 'crime', name: 'क्राइम' }
 ];
 
 const TOKEN_KEY = 'jyug_token';
